@@ -1,5 +1,5 @@
 <template>
-  <p>Home</p>
+  <h2>Bem vindo ao TCC da Balança!</h2>
 </template>
 
 <script>

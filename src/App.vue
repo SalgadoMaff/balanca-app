@@ -5,7 +5,7 @@
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="title">
-            Opções
+            Balança
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -36,7 +36,7 @@
     <v-app-bar app>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 
-      <v-toolbar-title>Sistema</v-toolbar-title>
+      <v-toolbar-title></v-toolbar-title>
     </v-app-bar>
 
     <v-main>
@@ -48,10 +48,11 @@
 <script>
   export default {
     data: () => ({ 
-      drawer: false,
+      drawer: true,
       items: [
-        { title: 'Histórico de Refeições', icon: 'mdi-image', to:'/History'},
-        { title: 'Nova Refeição', icon: 'mdi-view-dashboard', to: '/New_meal' },
+        { title: 'Home', icon: 'mdi-home', to:'/'},
+        { title: 'Histórico de Refeições', icon: 'mdi-history', to:'/history'},
+        { title: 'Nova Refeição', icon: 'mdi-newspaper-plus', to: '/new-meal' },
       ],
  
     }),
