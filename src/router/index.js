@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import New_meal from "../views/New_meal.vue";
+import NewMeal from "../views/NewMeal.vue";
 import History from "../views/History.vue";
 import Home from "../views/Home.vue";
 Vue.use(VueRouter);
@@ -11,11 +11,11 @@ const routes = [
     name:"Home",
     component: Home,
   },{
-    path: "/New_meal",
+    path: "/new-meal",
     name: "Nova_refeicao",
-    component: New_meal,
+    component: NewMeal,
   },{
-    path: "/History",
+    path: "/history",
     name: "Historico",
     component: History,
   },
