@@ -1,14 +1,16 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import Vue from "vue"
+import Vuex from "vuex"
+import createPersistedState from "vuex-persistedstate"
 
-import error from '@/store/error';
-import user from '@/store/user';
+import error from "@/store/error"
+import user from "@/store/user"
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  modules: {
-    error,
-    user,
-  },
+    plugins: [createPersistedState()],
+    modules: {
+        error,
+        user
+    }
 })
