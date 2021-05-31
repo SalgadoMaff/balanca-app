@@ -1,36 +1,39 @@
-import user from '@/api/user';
+import user from "@/api/user"
 
 const state = {
-  user: {
-    _id: '',
-  },
+    user: {
+        _id: ""
+    }
 }
 
 const getters = {
-  getUser: (state) => state.user,
+    getUser: (state) => state.user
 }
 
 const mutations = {
-  setUser: (state, user) => {
-    state.user = user
-    },
+    setUser: (state, user) => {
+        state.user = user
+    }
 }
 
 const actions = {
-  login: async (context, { username, password }) => {
-    const response = await user.login(username, password)
+    login: async (context, { username, password }) => {
+        const response = await user.login(username, password)
         if (!(response instanceof Error)) {
-      localStorage.setItem('token', response.data.accessToken)
+            localStorage.setItem("token", response.data.accessToken)
             return true
         }
-    return false
+        return false
     },
-  findUser: async ({ commit }) => {
-    const response = await user.findUser()
+    findUser: async ({ commit }) => {
+        const response = await user.findUser()
         if (!(response instanceof Error)) {
-      commit('setUser', response.data)
+            commit("setUser", response.data)
         }
-  },
+    },
+    clearUserData: ({ commit }) => {
+        commit("setUser", { _id: "" })
+    }
 }
 
 export default { state, getters, mutations, actions, namespaced: true }

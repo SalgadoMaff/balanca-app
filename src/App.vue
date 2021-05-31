@@ -3,7 +3,7 @@
     <v-navigation-drawer v-if="validateShowApp()" v-model="drawer" app>
       <v-list-item>
         <v-list-item-content>
-          <v-list-item-title class="title"> Balança </v-list-item-title>
+          <v-list-item-title class="title"> Balança</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
@@ -12,11 +12,11 @@
       <v-list dense nav>
         <v-list-item v-for="item in menu" :key="item.title" :to="item.to" link>
           <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
+            <v-icon :class="item.iconClass">{{ item.icon }}</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-title :class="item.textClass">{{ item.title }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -50,38 +50,48 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters } from "vuex"
 
 export default {
   computed: {
-    ...mapGetters('error', ['getError']),
-    ...mapGetters('user', ['getUser']),
+    ...mapGetters("error", ["getError"]),
+    ...mapGetters("user", ["getUser"])
   },
   data: () => ({
-    errorMessage: '',
+    errorMessage: "",
     showErrorAlert: false,
     drawer: true,
     menu: [
-      { title: 'Home', icon: 'mdi-home', to: '/' },
-      { title: 'Histórico de Refeições', icon: 'mdi-history', to: '/history' },
-      { title: 'Nova Refeição', icon: 'mdi-newspaper-plus', to: '/new-meal' },
-    ],
+      { title: "Home", icon: "mdi-home", to: "/" },
+      { title: "Histórico de Refeições", icon: "mdi-history", to: "/history" },
+      { title: "Nova Refeição", icon: "mdi-newspaper-plus", to: "/new-meal" },
+      { title: "Sair", icon: "mdi-logout-variant", to: "/logout", iconClass: "flipped", textClass: "text-red" }
+    ]
   }),
   methods: {
     validateShowApp() {
       return this.getUser && this.getUser._id
-        },
+    },
     toggleErrorAlert() {
       this.showErrorAlert = !this.showErrorAlert
-        },
+    }
   },
   watch: {
     getError() {
       if (this.getError) {
         this.errorMessage = this.getError.message
-                this.showErrorAlert = true
-            }
-    },
-  },
+        this.showErrorAlert = true
+      }
+    }
+  }
 }
 </script>
+
+<style scoped lang="sass">
+.flipped
+  transform: rotate(180deg)
+  color: #EF5350 !important
+
+.text-red
+  color: #EF5350 !important
+</style>
