@@ -24,6 +24,9 @@
                             </v-btn>
                         </template>
                         <v-list>
+                            <v-list-item @click="type = 'day'">
+                                <v-list-item-title>Diário</v-list-item-title>
+                            </v-list-item>
                             <v-list-item @click="type = 'week'">
                                 <v-list-item-title>Semanal</v-list-item-title>
                             </v-list-item>
@@ -88,6 +91,7 @@ export default {
         focus: "",
         type: "month",
         typeToLabel: {
+            day: "Diário",
             month: "Mensal",
             week: "Semanal"
         },
