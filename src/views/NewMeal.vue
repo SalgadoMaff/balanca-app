@@ -6,20 +6,10 @@
             <v-card-text class="text-primary">
                 <v-col cols="12">
                     <v-row class="mb-2 align-center">
-                        <v-autocomplete
-                            :items="foods"
-                            v-model="plate.foodId"
-                            item-text="name"
-                            item-value="_id"
-                            label="Informe o alimento"
-                            no-data-text="Sem alimento"
-                        />
+                        <v-autocomplete :items="foods" v-model="food.foodId" item-text="name" item-value="_id"
+                                        label="Informe o alimento" no-data-text="Sem alimento" />
 
-                        <v-text-field
-                            v-model="plate.quantity"
-                            type="number"
-                            label="Informe a quantidade"
-                        />
+                        <v-text-field v-model="food.quantity" type="number" label="Informe a quantidade" />
 
                         <v-btn @click="addFoodToMeal" icon>
                             <v-icon>mdi-plus</v-icon>
@@ -27,13 +17,7 @@
                     </v-row>
 
                     <v-row class="mb-2">
-                        <v-chip
-                            class="mr-2"
-                            v-for="item in meal"
-                            :key="item._id"
-                            close
-                            close-icon="mdi-close"
-                        >
+                        <v-chip class="mr-2" v-for="item in meal" :key="item._id" close close-icon="mdi-close">
                             <span>{{ item.name }} - {{ item.quantity }}</span>
                         </v-chip>
                     </v-row>
@@ -46,7 +30,7 @@
                     <span>Cancelar</span>
                 </v-btn>
 
-                <v-btn class="primary" @click="saveMeal">
+                <v-btn class="primary" @click="saveMeal" :loading="loading" :disabled="loading">
                     <v-icon>mdi-content-save</v-icon>
                     <span>Salvar</span>
                 </v-btn>
@@ -56,50 +40,89 @@
 </template>
 
 <script>
-import {mapGetters, mapActions} from "vuex"
+import { mapActions, mapGetters, mapMutations } from "vuex"
+
 export default {
     name: "NewMeal",
     data() {
         return {
             foods: [],
-            plate: {
+            food: {
                 foodId: "",
-                quantity: "",
+                quantity: ""
             },
-            meal: []
+            meal: [],
+            loading: false
         }
     },
     computed: {
-        ...mapGetters("food", ["getFoods"])
+        ...mapGetters("food", ["getFoods"]),
+        ...mapGetters("user", ["getUser"])
     },
     async mounted() {
         await this.findFoods()
     },
     methods: {
         ...mapActions("food", ["findAllFoods"]),
+        ...mapActions("meal", ["createMeal"]),
+        ...mapMutations("error", ["setError", "setSuccess"]),
         async findFoods() {
             await this.findAllFoods()
             this.foods = this.getFoods
         },
         addFoodToMeal() {
-            const food = this.foods.find((f) => f._id == this.plate.foodId)
-            this.meal.push({
-                foodId: this.plate.foodId,
-                quantity: this.plate.quantity,
-                name: food.name
-            })
-            this.clearInput()
+            const valid = this.validateFood()
+            if (valid) {
+                const food = this.foods.find((f) => f._id == this.food.foodId)
+                this.meal.push({
+                    foodId: this.food.foodId,
+                    quantity: this.food.quantity,
+                    name: food.name
+                })
+                this.clearInput()
+            }
         },
-        saveMeal() {
-            // TODO
+        async saveMeal() {
+            this.loading = true
+            const valid = this.validateMeal()
+            if (valid) {
+                const created = await this.createMeal({
+                    userId: this.getUser._id,
+                    meal: this.meal
+                })
+
+                if (created) {
+                    this.setSuccess({ message: "Refeição criada com sucesso!" })
+                    this.clearAll()
+                }
+            }
+            this.loading = false
+        },
+        validateFood() {
+            if (!this.food.foodId) {
+                this.setError({ message: "Selecione o alimento!" })
+                return false
+            }
+            if (!this.food.quantity) {
+                this.setError({ message: "Informe a quantidade!" })
+                return false
+            }
+            return true
+        },
+        validateMeal() {
+            if (this.meal.length < 1) {
+                this.setError({ message: "Adicione ao menos um alimento!" })
+                return false
+            }
+            return true
         },
         clearAll() {
             this.clearInput()
             this.clearMeal()
         },
         clearInput() {
-            this.plate.foodId = ""
-            this.plate.quantity = ""
+            this.food.foodId = ""
+            this.food.quantity = ""
         },
         clearMeal() {
             this.meal = []

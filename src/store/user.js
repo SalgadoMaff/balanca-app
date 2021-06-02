@@ -26,7 +26,7 @@ const actions = {
         return false
     },
     findUser: async ({ commit }) => {
-        const response = await user.findUser()
+        const response = await user.findCurrent()
         if (!(response instanceof Error)) {
             commit("setUser", response.data)
         }

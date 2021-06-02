@@ -5,6 +5,7 @@ import createPersistedState from "vuex-persistedstate"
 import error from "@/store/error"
 import user from "@/store/user"
 import food from "@/store/food"
+import meal from "@/store/meal"
 
 Vue.use(Vuex)
 
@@ -13,6 +14,7 @@ export default new Vuex.Store({
     modules: {
         error,
         user,
-        food
+        food,
+        meal
     }
 })

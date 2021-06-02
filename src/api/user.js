@@ -4,7 +4,7 @@ export default {
     login(username, password) {
         return api.post("users/login", { username, password })
     },
-    findUser() {
+    findCurrent() {
         return api.get("users/session")
     }
 }
