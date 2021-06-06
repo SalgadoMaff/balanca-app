@@ -1,12 +1,17 @@
 import mealApi from "@/api/meal"
 
 const state = {
+    meals: []
 }
 
 const getters = {
+    getMeals: (state) => state.meals
 }
 
 const mutations = {
+    setMeals: (state, meals) => {
+        state.meals = meals
+    }
 }
 
 const actions = {
@@ -16,6 +21,13 @@ const actions = {
             return true
         }
         return false
+    },
+    findAllMealsByUser: async ({ commit }, userId) => {
+        commit("setMeals", [])
+        const response = await mealApi.findAllByUser(userId)
+        if (!(response instanceof Error)) {
+            commit("setMeals", response.data.meals)
+        }
     }
 }
 
