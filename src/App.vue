@@ -81,6 +81,11 @@ export default {
                 to: "/users"
             },
             {
+                title: "Alimentos",
+                icon: "mdi-chef-hat",
+                to: "/foods"
+            },
+            {
                 title: "Sair",
                 icon: "mdi-logout-variant",
                 to: "/logout",
