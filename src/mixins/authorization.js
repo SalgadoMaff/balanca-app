@@ -7,7 +7,7 @@ export default {
             const match = applicationRoutes.find(route => route.path === path)
 
             if (match && match.meta && match.meta.authorizationRequired) {
-                if (userRole != match.meta.permission) {
+                if (userRole != match.meta.role) {
                     return false
                 }
             }
