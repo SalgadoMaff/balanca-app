@@ -15,7 +15,7 @@ export default {
     name: "NotAuthorized",
     methods: {
         back() {
-            this.$router.back()
+            this.$router.go(-1)
         }
     }
 }
