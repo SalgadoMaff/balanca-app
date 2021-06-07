@@ -27,8 +27,7 @@ export default {
     },
     methods: {
         search() {},
-        filterOnlyCapsText() {},
-        calories() {}
+        filterOnlyCapsText() {}
     }
 }
 </script>
