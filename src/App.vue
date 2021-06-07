@@ -1,5 +1,5 @@
 <template>
-    <v-app id="inspire">
+    <v-app id="inspire" class="app-container">
         <v-navigation-drawer v-if="validateShowApp()" v-model="drawer" app>
             <v-list-item>
                 <v-list-item-content>
@@ -111,7 +111,10 @@ export default {
 }
 </script>
 
-<style scoped lang="sass">
+<style lang="sass">
+.app-container
+    height: 100%
+
 .flipped
     transform: rotate(180deg)
     color: #EF5350 !important
