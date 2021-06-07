@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <div class="text-center">
-            <h2>Bem vindo ao TCC da Balança{{ user }}!</h2>
+            <h2>Bem vindo à Balança Inteligente{{ user }}!</h2>
         </div>
     </v-container>
 </template>
