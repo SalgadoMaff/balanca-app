@@ -6,5 +6,8 @@ export default {
     },
     findCurrent() {
         return api.get("users/session")
+    },
+    findAll() {
+        return api.get("users")
     }
 }

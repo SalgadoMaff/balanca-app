@@ -76,6 +76,11 @@ export default {
                 to: "/new-meal"
             },
             {
+                title: "Usuários",
+                icon: "mdi-account-group",
+                to: "/users"
+            },
+            {
                 title: "Sair",
                 icon: "mdi-logout-variant",
                 to: "/logout",

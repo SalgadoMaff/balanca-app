@@ -3,16 +3,21 @@ import user from "@/api/user"
 const state = {
     user: {
         _id: ""
-    }
+    },
+    users: []
 }
 
 const getters = {
-    getUser: (state) => state.user
+    getUser: (state) => state.user,
+    getUsers: (state) => state.users
 }
 
 const mutations = {
     setUser: (state, user) => {
         state.user = user
+    },
+    setUsers: (state, users) => {
+        state.users = users
     }
 }
 
@@ -33,6 +38,13 @@ const actions = {
     },
     clearUserData: ({ commit }) => {
         commit("setUser", { _id: "" })
+    },
+    findAllUsers: async ({ commit }) => {
+        commit("setUsers", [])
+        const response = await user.findAll()
+        if (!(response instanceof Error)) {
+            commit("setUsers", response.data)
+        }
     }
 }
 
