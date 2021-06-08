@@ -5,8 +5,6 @@
             :items="items"
             item-key="name"
             class="elevation-2"
-            :search="search"
-            :custom-filter="filterOnlyCapsText"
             :no-data-text="noDataText"
         >
         </v-data-table>
@@ -31,8 +29,6 @@ export default {
         }
     },
     methods: {
-        search() {},
-        filterOnlyCapsText() {}
     }
 }
 </script>
