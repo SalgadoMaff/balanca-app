@@ -12,7 +12,7 @@ const routes = [
         }
     },
     {
-        path: "/food",
+        path: "/foods",
         name: "ListFood",
         component: ListFood,
         meta: {
