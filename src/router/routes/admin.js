@@ -1,11 +1,11 @@
-import ListUser from "@/views/admin/user/ListUser"
+import User from "@/views/admin/user/User"
 import Food from "@/views/admin/food/Food"
 
 const routes = [
     {
         path: "/users",
-        name: "ListUser",
-        component: ListUser,
+        name: "User",
+        component: User,
         meta: {
             authorizationRequired: true,
             role: "ADMIN"

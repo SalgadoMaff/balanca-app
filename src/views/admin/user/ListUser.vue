@@ -1,13 +1,5 @@
 <template>
-    <v-container class="pt-10">
-        <div class="pb-4 align-content-end">
-            <v-btn color="primary">
-                <v-icon>mdi-plus</v-icon>
-                <span>Novo</span>
-            </v-btn>
-        </div>
-        <Table :items="users" :headers="headers"/>
-    </v-container>
+    <Table :items="users" :headers="headers"/>
 </template>
 
 <script>
@@ -19,7 +11,6 @@ export default {
         Table
     },
     data: () => ({
-        loading: false,
         users: [],
         headers: [
             {
@@ -51,15 +42,14 @@ export default {
     methods: {
         ...mapActions("user", ["findAllUsers"]),
         async findUsers() {
-            this.loading = true
             await this.findAllUsers()
             this.users = this.getUsers
-            this.loading = false
+        }
+    },
+    watch: {
+        getUsers() {
+            this.users = this.getUsers
         }
     }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -21,7 +21,7 @@ const actions = {
             commit("setFoods", response.data)
         }
     },
-    createFood: async ({ commit }, { name, calPerGram }) => {
+    createFood: async ({}, { name, calPerGram }) => {
         const response = await food.create({ name, calPerGram })
         if (!(response instanceof Error)) {
             return true

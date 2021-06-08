@@ -45,6 +45,13 @@ const actions = {
         if (!(response instanceof Error)) {
             commit("setUsers", response.data)
         }
+    },
+    createUser: async ({}, { name, username, role, password }) => {
+        const response = await user.create({ name, username, role, password })
+        if (!(response instanceof Error)) {
+            return true
+        }
+        return false
     }
 }
 

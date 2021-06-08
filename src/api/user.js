@@ -9,5 +9,8 @@ export default {
     },
     findAll() {
         return api.get("users")
+    },
+    create(user) {
+        return api.post("users", user)
     }
 }
