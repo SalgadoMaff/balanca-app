@@ -6,5 +6,8 @@ export default {
     },
     create(food) {
         return api.post("foods", food)
+    },
+    delete(id) {
+        return api.delete(`foods/${id}`)
     }
 }

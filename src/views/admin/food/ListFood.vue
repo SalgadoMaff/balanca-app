@@ -1,9 +1,9 @@
 <template>
-    <Table :items="foods" :headers="headers"/>
+    <Table :items="foods" :headers="headers" @delete="removeFood"/>
 </template>
 
 <script>
-import {mapGetters, mapActions} from "vuex"
+import {mapGetters, mapActions, mapMutations} from "vuex"
 import Table from "@/components/Table"
 export default {
     name: "ListFood",
@@ -24,6 +24,13 @@ export default {
                 align: 'start',
                 sortable: false,
                 value: 'calPerGram'
+            },
+            {
+                text: 'Ações',
+                align: 'center',
+                sortable: false,
+                width: '10%',
+                value: 'actions'
             }
         ]
     }),
@@ -34,10 +41,18 @@ export default {
         await this.findFoods()
     },
     methods: {
-        ...mapActions("food", ["findAllFoods"]),
+        ...mapActions("food", ["findAllFoods", "deleteFood"]),
+        ...mapMutations("error", ["setSuccess"]),
         async findFoods() {
             await this.findAllFoods()
             this.foods = this.getFoods
+        },
+        async removeFood(food) {
+            const success = await this.deleteFood(food._id)
+            if (success) {
+                await this.findFoods()
+                this.setSuccess({ message: `Alimento '${food.name}' excluído com sucesso.` })
+            }
         }
     },
     watch: {

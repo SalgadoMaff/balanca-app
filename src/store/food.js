@@ -27,6 +27,13 @@ const actions = {
             return true
         }
         return false
+    },
+    deleteFood: async ({}, id) => {
+        const response = await food.delete(id)
+        if (!(response instanceof Error)) {
+            return true
+        }
+        return false
     }
 }
 

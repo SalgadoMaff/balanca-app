@@ -1,12 +1,12 @@
 <template>
     <div>
-        <v-data-table
-            :headers="headers"
-            :items="items"
-            item-key="name"
-            class="elevation-2"
-            :no-data-text="noDataText"
-        >
+        <v-data-table :headers="headers" :items="items" item-key="name" :no-data-text="noDataText"
+                      class="elevation-2">
+            <template v-slot:item.actions="{ item }">
+                <v-btn small icon @click="$emit('delete', item)">
+                    <v-icon small>mdi-delete</v-icon>
+                </v-btn>
+            </template>
         </v-data-table>
     </div>
 </template>
@@ -32,7 +32,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-
-</style>
