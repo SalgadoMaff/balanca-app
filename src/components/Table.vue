@@ -7,6 +7,7 @@
             class="elevation-2"
             :search="search"
             :custom-filter="filterOnlyCapsText"
+            :no-data-text="noDataText"
         >
         </v-data-table>
     </div>
@@ -23,6 +24,10 @@ export default {
         headers: {
             type: Array,
             default: () => ([])
+        },
+        noDataText: {
+            type: String,
+            default: 'Dados não encontrados.'
         }
     },
     methods: {
