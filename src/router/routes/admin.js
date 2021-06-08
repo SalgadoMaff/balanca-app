@@ -1,5 +1,5 @@
 import ListUser from "@/views/admin/user/ListUser"
-import ListFood from "@/views/admin/food/ListFood"
+import Food from "@/views/admin/food/Food"
 
 const routes = [
     {
@@ -13,8 +13,8 @@ const routes = [
     },
     {
         path: "/foods",
-        name: "ListFood",
-        component: ListFood,
+        name: "Food",
+        component: Food,
         meta: {
             authorizationRequired: true,
             role: "ADMIN"
