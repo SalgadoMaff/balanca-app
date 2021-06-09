@@ -1,11 +1,12 @@
 {
-  "name": "front",
-  "version": "0.1.0",
+  "name": "balanca-app",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
   },
+  "author": "Felipe Salgado",
   "dependencies": {
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
