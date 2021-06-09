@@ -28,8 +28,8 @@ const actions = {
         }
         return false
     },
-    deleteFood: async ({}, id) => {
-        const response = await food.delete(id)
+    updateFood: async ({}, { _id, name, calPerGram }) => {
+        const response = await food.update(_id, { name, calPerGram })
         if (!(response instanceof Error)) {
             return true
         }

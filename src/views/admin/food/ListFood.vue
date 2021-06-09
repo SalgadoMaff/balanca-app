@@ -1,5 +1,5 @@
 <template>
-    <Table :items="foods" :headers="headers" @delete="removeFood"/>
+    <Table :items="foods" :headers="headers" @edit="editFood"/>
 </template>
 
 <script>
@@ -41,18 +41,14 @@ export default {
         await this.findFoods()
     },
     methods: {
-        ...mapActions("food", ["findAllFoods", "deleteFood"]),
+        ...mapActions("food", ["findAllFoods", "updateFood"]),
         ...mapMutations("error", ["setSuccess"]),
         async findFoods() {
             await this.findAllFoods()
             this.foods = this.getFoods
         },
-        async removeFood(food) {
-            const success = await this.deleteFood(food._id)
-            if (success) {
-                await this.findFoods()
-                this.setSuccess({ message: `Alimento '${food.name}' excluído com sucesso.` })
-            }
+        async editFood(food) {
+            this.$emit('edit', food)
         }
     },
     watch: {

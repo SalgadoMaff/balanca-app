@@ -3,8 +3,8 @@
         <v-data-table :headers="headers" :items="items" item-key="name" :no-data-text="noDataText"
                       class="elevation-2">
             <template v-slot:item.actions="{ item }">
-                <v-btn small icon @click="$emit('delete', item)">
-                    <v-icon small>mdi-delete</v-icon>
+                <v-btn small icon @click="$emit('edit', item)">
+                    <v-icon small>mdi-pencil</v-icon>
                 </v-btn>
             </template>
         </v-data-table>

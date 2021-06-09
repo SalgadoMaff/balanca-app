@@ -1,7 +1,7 @@
 <template>
     <v-container class="pt-10">
-        <CreateFood />
-        <ListFood />
+        <CreateFood :data="foodToEdit"/>
+        <ListFood @edit="editFood"/>
     </v-container>
 </template>
 
@@ -13,6 +13,14 @@ export default {
     components: {
         ListFood,
         CreateFood
+    },
+    data: () => ({
+        foodToEdit: {}
+    }),
+    methods: {
+        editFood(food) {
+            this.foodToEdit = food
+        }
     }
 }
 </script>

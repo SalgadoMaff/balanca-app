@@ -23,6 +23,12 @@ export default {
     components: {
         Modal
     },
+    props: {
+        data: {
+            type: Object,
+            default: () => ({})
+        }
+    },
     data: () => ({
         loading: false,
         showModal: false,
@@ -36,17 +42,32 @@ export default {
         }
     }),
     methods: {
-        ...mapActions("food", ["findAllFoods", "createFood"]),
+        ...mapActions("food", ["findAllFoods", "createFood", "updateFood"]),
         ...mapMutations("error", ["setSuccess"]),
         async saveFood() {
             this.loading = true
+            if (this.food._id) {
+                this.update()
+            } else {
+                this.create()
+            }
+            this.loading = false
+        },
+        async create() {
             const created = await this.createFood(this.food)
             if (created) {
                 await this.findAllFoods()
                 this.closeModal()
                 this.setSuccess({ message: "Alimento cadastrado com sucesso." })
             }
-            this.loading = false
+        },
+        async update() {
+            const updated = await this.updateFood(this.food)
+            if (updated) {
+                await this.findAllFoods()
+                this.closeModal()
+                this.setSuccess({ message: "Alimento atualziado com sucesso." })
+            }
         },
         openModal() {
             this.showModal = true
@@ -59,6 +80,14 @@ export default {
             this.food = {
                 name: "",
                 calPerGram: ""
+            }
+        }
+    },
+    watch: {
+        data() {
+            if (this.data) {
+                this.food = { ...this.data }
+                this.openModal()
             }
         }
     }
