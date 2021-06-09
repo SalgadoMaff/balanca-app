@@ -18,8 +18,8 @@ export default {
                 return ""
             }
 
-            const { hour, minute, second } = this.getDateValues(date)
-            return (hour < 10 ? "0" + hour : hour) + ":" + (minute < 10 ? "0" + minute : minute) + ":" + (second < 10 ? "0" + second : second)
+            const { hour, minute } = this.getDateValues(date)
+            return (hour < 10 ? "0" + hour : hour) + ":" + (minute < 10 ? "0" + minute : minute)
         },
         getDate(date) {
             try {
@@ -34,9 +34,8 @@ export default {
             const year = date.getFullYear()
             const hour = date.getHours()
             const minute = date.getMinutes()
-            const second = date.getSeconds()
 
-            return { day, month, year, hour, minute, second }
+            return { day, month, year, hour, minute }
         }
     }
 }

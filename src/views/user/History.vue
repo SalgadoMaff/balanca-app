@@ -31,6 +31,7 @@ export default {
                     start: this.formatDateTime(meal.createdAt),
                     end: this.formatDateTime(meal.createdAt),
                     timed: true,
+                    hour: this.formatTime(meal.createdAt),
                     details: this.formatDetails(meal)
                 })
             })
