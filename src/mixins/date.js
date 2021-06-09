@@ -29,12 +29,12 @@ export default {
             }
         },
         getDateValues(date) {
-            const day = date.getUTCDate()
-            const month = date.getUTCMonth() + 1
-            const year = date.getUTCFullYear()
-            const hour = date.getUTCHours()
-            const minute = date.getUTCMinutes()
-            const second = date.getUTCSeconds()
+            const day = date.getDate()
+            const month = date.getMonth() + 1
+            const year = date.getFullYear()
+            const hour = date.getHours()
+            const minute = date.getMinutes()
+            const second = date.getSeconds()
 
             return { day, month, year, hour, minute, second }
         }
