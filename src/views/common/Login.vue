@@ -1,15 +1,17 @@
 <template>
     <v-container class="login-container">
-        <v-flex xs10 md6>
+        <v-flex xs12 sm6 md4>
             <v-card @keyup.enter="authenticate">
-                <v-card-title class="justify-center">Entrar</v-card-title>
+                <v-card-title class="justify-center">Balança Inteligente</v-card-title>
 
                 <v-card-text class="text-primary">
                     <v-text-field v-model="authData.username" label="Usuário" />
                     <v-text-field
                         v-model="authData.password"
                         label="Senha"
-                        type="password"
+                        :append-icon="passwordIcon"
+                        :type="passwordType"
+                        @click:append="toggleShowPassword"
                     />
                 </v-card-text>
 
@@ -39,11 +41,18 @@ export default {
                 username: "",
                 password: ""
             },
-            loading: false
+            loading: false,
+            showPassword: false
         }
     },
     computed: {
-        ...mapGetters("user", ["getUser"])
+        ...mapGetters("user", ["getUser"]),
+        passwordIcon() {
+            return this.showPassword ? "mdi-eye-off" : "mdi-eye"
+        },
+        passwordType() {
+            return this.showPassword ? "text" : "password"
+        }
     },
     methods: {
         ...mapActions("user", ["login", "findUser"]),
@@ -55,6 +64,9 @@ export default {
                 this.$router.push({ path: "/" })
             }
             this.loading = false
+        },
+        toggleShowPassword() {
+            this.showPassword = !this.showPassword
         }
     }
 }
