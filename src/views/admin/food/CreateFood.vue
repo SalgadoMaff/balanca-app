@@ -9,7 +9,9 @@
         <Modal :open="showModal" :loading="loading" title="Novo Alimento" @close="closeModal" @save="saveFood">
             <div slot="body">
                 <v-text-field v-model="food.name" label="Nome" autofocus :rule="validations.name" required/>
-                <v-text-field v-model="food.calPerGram" label="Caloria por grama" :rule="validations.calPerGram" type="number" required/>
+                <v-text-field v-model="food.servingSize.value" label="Porção" autofocus :rule="validations.number" required/>
+                <v-combobox v-model="food.servingSize.unit" :items="items" label="Unidade da porção" :rule="validations.unit" autofocus required/>
+                <v-text-field v-model="food.calories" label="Calorias" :rule="validations.number" type="number" required/>
             </div>
         </Modal>
     </div>
@@ -32,13 +34,28 @@ export default {
     data: () => ({
         loading: false,
         showModal: false,
+        NutritionFact:{
+            nutrient:"",
+            amount:{
+                unit:"",
+                value:""
+            }
+        },
+        servingSize:{
+            unit:"",
+            value:""
+        },
+        items:['g','kg','mg'],
         food: {
             name: "",
-            calPerGram: ""
+            calories: "",
+            servingSize:{},
+            nutritionFacts:[]
         },
         validations: {
             name: [val => (val || '').length > 0 || 'Este campo é obrigatório'],
-            calPerGram: [val => !!val || 'Este campo é obrigatório']
+            number: [val => !!val || 'Este campo é obrigatório'],
+            unit:[val =>(val == 'g'|| val== 'kg'|| val=='mg')||'Este campo é obrigatório']
         }
     }),
     methods: {
@@ -79,7 +96,12 @@ export default {
         clearModalData() {
             this.food = {
                 name: "",
-                calPerGram: ""
+                calories: "",
+                servingSize:{
+                    unit:"",
+                    value:""
+                },
+                nutritionFacts:[]
             }
         }
     },

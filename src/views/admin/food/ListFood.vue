@@ -20,10 +20,10 @@ export default {
                 value: 'name'
             },
             {
-                text: 'Caloria por Grama',
+                text: 'Calorias',
                 align: 'start',
                 sortable: false,
-                value: 'calPerGram'
+                value: 'calories'
             },
             {
                 text: 'Ações',
