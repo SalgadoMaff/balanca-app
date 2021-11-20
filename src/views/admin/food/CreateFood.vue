@@ -9,10 +9,21 @@
         <Modal :open="showModal" :loading="loading" title="Novo Alimento" @close="closeModal" @save="saveFood">
             <div slot="body">
                 <v-text-field v-model="food.name" label="Nome" autofocus :rule="validations.name" required/>
-                <v-text-field v-model="food.servingSize.value" label="Porção" autofocus :rule="validations.number" required/>
-                <v-combobox v-model="food.servingSize.unit" :items="items" label="Unidade da porção" :rule="validations.unit" autofocus required/>
+                <v-text-field v-model="food.servingSize.value" label="Porção"  :rule="validations.number" required/>
+                <v-combobox v-model="food.servingSize.unit" :items="unit_measures" label="Unidade da porção" :rule="validations.unit" required/>
                 <v-text-field v-model="food.calories" label="Calorias" :rule="validations.number" type="number" required/>
-            </div>
+                <v-chip class="mr-2" v-for="item in food.nutritionFacts" :key="item.nutrient.name" close close-icon="mdi-close" @click:close="removeNutritionFact(item.nutrient)">
+                    <span>{{ item.nutrient.name }} - {{item.nutrient.type}}</span>
+                </v-chip>
+                
+                <v-combobox v-model="NutritionFact.nutrient.type" :items="nutrient_types" label="Selecione o tipo de nutriente" required/>
+                <v-text-field v-model="NutritionFact.nutrient.name" label="Nome do nutriente" :rule="validations.name" required/>
+                <v-text-field v-model="NutritionFact.amount.value" label="Porção" :rule="validations.number" type="number" required/>
+                <v-combobox v-model="NutritionFact.amount.unit" :items="unit_measures" label="Unidade da porção" :rule="validations.unit" required/>
+                <v-btn @click="addNutritionfact">
+                    Adicionar Nutriente
+                </v-btn>
+            </div>  
         </Modal>
     </div>
 </template>
@@ -35,7 +46,10 @@ export default {
         loading: false,
         showModal: false,
         NutritionFact:{
-            nutrient:"",
+            nutrient:{
+                name:"",
+                type:"",
+            },
             amount:{
                 unit:"",
                 value:""
@@ -45,7 +59,8 @@ export default {
             unit:"",
             value:""
         },
-        items:['g','kg','mg'],
+        unit_measures:['mg','g','kg'],
+        nutrient_types:['Carbohidrato','Proteina','Gordura','Vitamina','Mineral'],
         food: {
             name: "",
             calories: "",
@@ -63,6 +78,27 @@ export default {
         ...mapMutations("error", ["setSuccess"]),
         async saveFood() {
             this.loading = true
+            this.food.nutritionFacts.forEach(element => {
+                switch(element.nutrient.type){
+                    case 'Carbohidrato':
+                        element.nutrient.type='CARBOHYDRATE'
+                        break
+                    case 'Proteina':
+                        element.nutrient.type='PROTEIN'
+                        break
+                    case 'Gordura':
+                        element.nutrient.type='FAT'
+                        break
+                    case 'Vitamina':
+                        element.nutrient.type='VITAMIN'
+                        break
+                    case 'Mineral':
+                        element.nutrient.type='MINERALS'
+                        break
+                    default:
+                        break
+                }
+            });
             if (this.food._id) {
                 this.update()
             } else {
@@ -85,6 +121,17 @@ export default {
                 this.closeModal()
                 this.setSuccess({ message: "Alimento atualziado com sucesso." })
             }
+        },
+        addNutritionfact(){
+            let Nutri=JSON.parse(JSON.stringify(this.NutritionFact))
+            this.food.nutritionFacts.push(Nutri)
+            this.NutritionFact.nutrient.name=""
+            this.NutritionFact.nutrient.type=""
+            this.NutritionFact.amount.unit=""
+            this.NutritionFact.amount.value=""   
+        },
+        removeNutritionFact(nutri){
+            this.food.nutritionFacts.splice(this.food.nutritionFacts.indexOf(nutri),1)
         },
         openModal() {
             this.showModal = true
