@@ -74,6 +74,7 @@ export default {
             characteristicCache:null,
             readBuffer:"",
             chat:"",
+            serial:"",
             loading: false
         }
     },
@@ -167,13 +168,13 @@ export default {
             filters: [{ name: 'Balança Inteligente' }]
             })
             .then(device => {
-          this.log('"' + device.name + '" bluetooth device selected');
-          this.deviceCache = device;
-          // Added line
-          this.deviceCache.addEventListener(
-            "gattserverdisconnected",
-            this.handleDisconnection
-          );
+              this.log('"' + device.name + '" bluetooth device selected');
+              this.deviceCache = device;
+              // Added line
+              this.deviceCache.addEventListener(
+              "gattserverdisconnected",
+              this.handleDisconnection
+            );
           return this.deviceCache;
         });
     },
@@ -190,10 +191,12 @@ export default {
     },
     // Connect to the device specified, get service and characteristic
     connectDeviceAndCacheCharacteristic(device) {
-      if (device.gatt.connected && this.characteristicCache) {
+      
+      if (device.gatt && device.gatt.connected && this.characteristicCache) {
         return Promise.resolve(this.characteristicCache);
       }
       this.log("Connecting to GATT server...");
+      console.log(device)
       return device.gatt
         .connect()
         .then(server => {
@@ -227,6 +230,7 @@ export default {
       if (type == "in") this.logs.unshift(`IN: ${data}`);
       else if (type == "out") this.logs.unshift(`OUT: ${data}`);
       else this.logs.unshift(data);
+      console.log(this.logs[0])
     },
     // Disconnect
     disconnect() {

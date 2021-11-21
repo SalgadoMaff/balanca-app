@@ -13,7 +13,7 @@
                 <v-combobox v-model="food.servingSize.unit" :items="unit_measures" label="Unidade da porção" :rule="validations.unit" required/>
                 <v-text-field v-model="food.calories" label="Calorias" :rule="validations.number" type="number" required/>
                 <v-chip class="mr-2" v-for="item in food.nutritionFacts" :key="item.nutrient.name" close close-icon="mdi-close" @click:close="removeNutritionFact(item.nutrient)">
-                    <span>{{ item.nutrient.name }} - {{item.nutrient.type}}</span>
+                    <span>{{ item.nutrient.name }} - {{item.nutrient.type}} - {{item.amount.value}} {{item.amount.unit}}</span>
                 </v-chip>
                 
                 <v-combobox v-model="NutritionFact.nutrient.type" :items="nutrient_types" label="Selecione o tipo de nutriente" required/>
