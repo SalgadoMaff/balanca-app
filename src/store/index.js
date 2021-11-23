@@ -5,6 +5,7 @@ import error from "@/store/error"
 import user from "@/store/user"
 import food from "@/store/food"
 import meal from "@/store/meal"
+import nutrient from "@/store/nutrient"
 
 export default new Vuex.Store({
     plugins: [createPersistedState()],
@@ -12,6 +13,7 @@ export default new Vuex.Store({
         error,
         user,
         food,
-        meal
+        meal,
+        nutrient
     }
 })

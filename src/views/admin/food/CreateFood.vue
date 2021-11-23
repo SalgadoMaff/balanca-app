@@ -7,36 +7,39 @@
             </v-btn>
         </div>
         <Modal :open="showModal" :loading="loading" title="Novo Alimento" @close="closeModal" @save="saveFood">
-            <div slot="body">
-                <v-text-field v-model="food.name" label="Nome" autofocus :rule="validations.name" required/>
-                <v-text-field v-model="food.servingSize.value" label="Porção"  :rule="validations.number" required/>
-                <v-combobox v-model="food.servingSize.unit" :items="unit_measures" label="Unidade da porção" :rule="validations.unit" required/>
-                <v-text-field v-model="food.calories" label="Calorias" :rule="validations.number" type="number" required/>   
-                
-                <v-card flat><v-card-title>Nutrientes:</v-card-title>
-                    <v-chip class="mr-2" v-for="item in food.nutritionFacts" :key="item.nutrient.name" close close-icon="mdi-close" @click:close="removeNutritionFact(item.nutrient)">
-                        <span>{{ item.nutrient.name }} - {{item.nutrient.type}} - {{item.amount.value}} {{item.amount.unit}}</span>
+            <v-card flat slot="body">
+                <v-text-field v-model="food.name" label="Nome" autofocus :rules="[validations.length]" required />
+                <v-text-field v-model="food.servingSize.value" label="Porção" :rules="[validations.number]" required />
+                <v-combobox v-model="food.servingSize.unit" :items="unitMeasures" label="Unidade da porção"
+                            :rules="[validations.unit]" required />
+                <v-text-field v-model="food.calories" label="Calorias" :rules="[validations.number]" required />
+
+                <v-card-title class="label-nutrient">Nutrientes:</v-card-title>
+                <div class="d-flex flex-wrap">
+                    <v-chip class="mb-2 mr-2" v-for="item in food.nutritionFacts" :key="item.nutrient.name" close
+                            close-icon="mdi-close" @click:close="removeNutritionFact(item.nutrient)">
+                    <span>{{ item.nutrient.name
+                        }} - {{ item.nutrient.type }} - {{ item.amount.value }} {{ item.amount.unit }}</span>
                     </v-chip>
-                    <v-combobox v-model="NutritionFact.nutrient.type" :items="nutrient_types" label="Selecione o tipo de nutriente" required/>
-                    <v-text-field v-model="NutritionFact.nutrient.name" label="Nome do nutriente" :rule="validations.name" required/>
-                    <v-text-field v-model="NutritionFact.amount.value" label="Porção" :rule="validations.number" type="number" required/>
-                    <v-combobox v-model="NutritionFact.amount.unit" :items="unit_measures" label="Unidade da porção" :rule="validations.unit" required/>
-                    <v-row align="center" justify="space-around">
-                        <v-btn @click="addNutritionfact">
-                            Adicionar Nutriente
-                        </v-btn>
-                    </v-row>
-                </v-card>
-            </div>
-            <v-spacer>
-            </v-spacer>
+                </div>
+                <v-combobox v-model="nutritionFact.nutrient" label="Selecione o nutriente" required
+                            :items="getNutrients" :rules="[validations.object]" item-text="name" />
+                <v-text-field v-model="nutritionFact.amount.value" label="Porção" :rules="[validations.number]"
+                              required />
+                <v-combobox v-model="nutritionFact.amount.unit" :items="unitMeasures" label="Unidade da porção"
+                            :rules="[validations.unit]" required />
+                <v-row class="pt-2" align="center" justify="space-around">
+                    <v-btn @click="addNutritionFact">Adicionar Nutriente</v-btn>
+                </v-row>
+            </v-card>
         </Modal>
     </div>
 </template>
 
 <script>
-import { mapActions, mapMutations } from "vuex"
+import { mapActions, mapGetters, mapMutations } from "vuex"
 import Modal from "@/components/Modal"
+
 export default {
     name: "CreateFood",
     components: {
@@ -49,94 +52,57 @@ export default {
         }
     },
     data: () => ({
-        loading: false,
-        showModal: false,
-        NutritionFact:{
-            nutrient:{
-                name:"",
-                type:"",
-            },
-            amount:{
-                unit:"",
-                value:""
+        nutritionFact: {
+            nutrient: null,
+            amount: {
+                unit: "",
+                value: ""
             }
         },
-        unit_measures:['mg','g','kg'],
-        nutrient_types:['Carbohidrato','Proteina','Gordura','Vitamina','Mineral'],
         food: {
             name: "",
             calories: "",
-            servingSize:{
-                unit:"",
-                value:""
+            servingSize: {
+                unit: "",
+                value: ""
             },
-            nutritionFacts:[]
+            nutritionFacts: []
         },
+        loading: false,
+        showModal: false,
+        unitMeasures: ["mg", "g", "kg"],
         validations: {
-            name: [val => (val || '').length > 0 || 'Este campo é obrigatório'],
-            number: [val => !!val || 'Este campo é obrigatório'],
-            unit:[val =>(val == 'g'|| val== 'kg'|| val=='mg')||'Este campo é obrigatório']
+            length: val => (val || "").length > 0 || "Este campo está inválido",
+            number: val => !!val && !!Number(val) || "Este campo está inválido",
+            unit: val => !!["mg", "g", "kg"].includes(val) || "Este campo está inválido",
+            object: val => (!!val && Object.keys(val).length > 0) || "Este campo está inválido"
         }
     }),
+    async mounted() {
+        await this.findAllNutrients()
+    },
+    computed: {
+        ...mapGetters("nutrient", ["getNutrients"])
+    },
     methods: {
+        ...mapActions("nutrient", ["findAllNutrients"]),
         ...mapActions("food", ["findAllFoods", "createFood", "updateFood"]),
         ...mapMutations("error", ["setSuccess"]),
         async saveFood() {
             this.loading = true
-            this.food.nutritionFacts.forEach(element => {
-                switch(element.nutrient.type){
-                    case 'Carbohidrato':
-                        element.nutrient.type='CARBOHYDRATE'
-                        break
-                    case 'Proteina':
-                        element.nutrient.type='PROTEIN'
-                        break
-                    case 'Gordura':
-                        element.nutrient.type='FAT'
-                        break
-                    case 'Vitamina':
-                        element.nutrient.type='VITAMIN'
-                        break
-                    case 'Mineral':
-                        element.nutrient.type='MINERALS'
-                        break
-                    default:
-                        break
-                }
-            });
-            console.log(this.food)
+            this.food.nutritionFacts.forEach(nutritionFact => {
+                nutritionFact.nutrient = nutritionFact.nutrient._id
+            })
             if (this.food._id) {
-                this.update()
+                await this.update()
             } else {
-                this.create()
+                await this.create()
             }
             this.loading = false
         },
         async create() {
             const created = await this.createFood(this.food)
             if (created) {
-                await this.findAllFoods()
-                    this.food.nutritionFacts.forEach(element => {
-                        switch(element.nutrient.type){
-                            case 'CARBOHYDRATE':
-                                element.nutrient.type='Carbohidrato'
-                                break
-                            case 'PROTEIN':
-                                element.nutrient.type='Proteina'
-                                break
-                            case 'FAT':
-                                element.nutrient.type='Gordura'
-                                break
-                            case 'VITAMIN':
-                                element.nutrient.type='Vitamina'
-                                break
-                            case 'MINERALS':
-                                element.nutrient.type='Mineral'
-                                break
-                            default:
-                                break
-                        }
-                    });
                 this.closeModal()
                 this.setSuccess({ message: "Alimento cadastrado com sucesso." })
             }
@@ -144,42 +110,23 @@ export default {
         async update() {
             const updated = await this.updateFood(this.food)
             if (updated) {
-                await this.findAllFoods()
-                this.food.nutritionFacts.forEach(element => {
-                    switch(element.nutrient.type){
-                        case 'CARBOHYDRATE':
-                            element.nutrient.type='Carbohidrato'
-                            break
-                        case 'PROTEIN':
-                            element.nutrient.type='Proteina'
-                            break
-                        case 'FAT':
-                            element.nutrient.type='Gordura'
-                            break
-                        case 'VITAMIN':
-                            element.nutrient.type='Vitamina'
-                            break
-                        case 'MINERALS':
-                            element.nutrient.type='Mineral'
-                            break
-                        default:
-                            break
-                    }
-                });
                 this.closeModal()
                 this.setSuccess({ message: "Alimento atualziado com sucesso." })
             }
         },
-        addNutritionfact(){
-            let Nutri=JSON.parse(JSON.stringify(this.NutritionFact))
-            this.food.nutritionFacts.push(Nutri)
-            this.NutritionFact.nutrient.name=""
-            this.NutritionFact.nutrient.type=""
-            this.NutritionFact.amount.unit=""
-            this.NutritionFact.amount.value=""   
+        addNutritionFact() {
+            let nutri = JSON.parse(JSON.stringify(this.nutritionFact))
+            this.food.nutritionFacts.push(nutri)
+            this.nutritionFact = {
+                nutrient: null,
+                amount: {
+                    unit: "",
+                    value: ""
+                }
+            }
         },
-        removeNutritionFact(nutri){
-            this.food.nutritionFacts.splice(this.food.nutritionFacts.indexOf(nutri),1)
+        removeNutritionFact(nutri) {
+            this.food.nutritionFacts.splice(this.food.nutritionFacts.indexOf(nutri), 1)
         },
         openModal() {
             this.showModal = true
@@ -192,11 +139,11 @@ export default {
             this.food = {
                 name: "",
                 calories: "",
-                servingSize:{
-                    unit:"",
-                    value:""
+                servingSize: {
+                    unit: "",
+                    value: ""
                 },
-                nutritionFacts:[]
+                nutritionFacts: []
             }
         }
     },
@@ -210,3 +157,7 @@ export default {
     }
 }
 </script>
+<style lang="sass">
+.label-nutrient
+    margin-left: -18px
+</style>
