@@ -21,15 +21,15 @@ const actions = {
             commit("setFoods", response.data)
         }
     },
-    createFood: async ({}, { name, calPerGram }) => {
-        const response = await food.create({ name, calPerGram })
+    createFood: async ({}, { name, servingSize,MeasurementUnit,calories,nutritionFacts }) => {
+        const response = await food.create({ name, servingSize,MeasurementUnit,calories,nutritionFacts })
         if (!(response instanceof Error)) {
             return true
         }
         return false
     },
-    updateFood: async ({}, { _id, name, calPerGram }) => {
-        const response = await food.update(_id, { name, calPerGram })
+    updateFood: async ({}, { _id, name, servingSize,MeasurementUnit,calories,nutritionFacts }) => {
+        const response = await food.update(_id, { name, servingSize,MeasurementUnit,calories,nutritionFacts })
         if (!(response instanceof Error)) {
             return true
         }

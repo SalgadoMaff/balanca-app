@@ -11,19 +11,25 @@
                 <v-text-field v-model="food.name" label="Nome" autofocus :rule="validations.name" required/>
                 <v-text-field v-model="food.servingSize.value" label="Porção"  :rule="validations.number" required/>
                 <v-combobox v-model="food.servingSize.unit" :items="unit_measures" label="Unidade da porção" :rule="validations.unit" required/>
-                <v-text-field v-model="food.calories" label="Calorias" :rule="validations.number" type="number" required/>
-                <v-chip class="mr-2" v-for="item in food.nutritionFacts" :key="item.nutrient.name" close close-icon="mdi-close" @click:close="removeNutritionFact(item.nutrient)">
-                    <span>{{ item.nutrient.name }} - {{item.nutrient.type}} - {{item.amount.value}} {{item.amount.unit}}</span>
-                </v-chip>
+                <v-text-field v-model="food.calories" label="Calorias" :rule="validations.number" type="number" required/>   
                 
-                <v-combobox v-model="NutritionFact.nutrient.type" :items="nutrient_types" label="Selecione o tipo de nutriente" required/>
-                <v-text-field v-model="NutritionFact.nutrient.name" label="Nome do nutriente" :rule="validations.name" required/>
-                <v-text-field v-model="NutritionFact.amount.value" label="Porção" :rule="validations.number" type="number" required/>
-                <v-combobox v-model="NutritionFact.amount.unit" :items="unit_measures" label="Unidade da porção" :rule="validations.unit" required/>
-                <v-btn @click="addNutritionfact">
-                    Adicionar Nutriente
-                </v-btn>
-            </div>  
+                <v-card flat><v-card-title>Nutrientes:</v-card-title>
+                    <v-chip class="mr-2" v-for="item in food.nutritionFacts" :key="item.nutrient.name" close close-icon="mdi-close" @click:close="removeNutritionFact(item.nutrient)">
+                        <span>{{ item.nutrient.name }} - {{item.nutrient.type}} - {{item.amount.value}} {{item.amount.unit}}</span>
+                    </v-chip>
+                    <v-combobox v-model="NutritionFact.nutrient.type" :items="nutrient_types" label="Selecione o tipo de nutriente" required/>
+                    <v-text-field v-model="NutritionFact.nutrient.name" label="Nome do nutriente" :rule="validations.name" required/>
+                    <v-text-field v-model="NutritionFact.amount.value" label="Porção" :rule="validations.number" type="number" required/>
+                    <v-combobox v-model="NutritionFact.amount.unit" :items="unit_measures" label="Unidade da porção" :rule="validations.unit" required/>
+                    <v-row align="center" justify="space-around">
+                        <v-btn @click="addNutritionfact">
+                            Adicionar Nutriente
+                        </v-btn>
+                    </v-row>
+                </v-card>
+            </div>
+            <v-spacer>
+            </v-spacer>
         </Modal>
     </div>
 </template>
@@ -55,16 +61,15 @@ export default {
                 value:""
             }
         },
-        servingSize:{
-            unit:"",
-            value:""
-        },
         unit_measures:['mg','g','kg'],
         nutrient_types:['Carbohidrato','Proteina','Gordura','Vitamina','Mineral'],
         food: {
             name: "",
             calories: "",
-            servingSize:{},
+            servingSize:{
+                unit:"",
+                value:""
+            },
             nutritionFacts:[]
         },
         validations: {
@@ -99,6 +104,7 @@ export default {
                         break
                 }
             });
+            console.log(this.food)
             if (this.food._id) {
                 this.update()
             } else {
@@ -110,6 +116,27 @@ export default {
             const created = await this.createFood(this.food)
             if (created) {
                 await this.findAllFoods()
+                    this.food.nutritionFacts.forEach(element => {
+                        switch(element.nutrient.type){
+                            case 'CARBOHYDRATE':
+                                element.nutrient.type='Carbohidrato'
+                                break
+                            case 'PROTEIN':
+                                element.nutrient.type='Proteina'
+                                break
+                            case 'FAT':
+                                element.nutrient.type='Gordura'
+                                break
+                            case 'VITAMIN':
+                                element.nutrient.type='Vitamina'
+                                break
+                            case 'MINERALS':
+                                element.nutrient.type='Mineral'
+                                break
+                            default:
+                                break
+                        }
+                    });
                 this.closeModal()
                 this.setSuccess({ message: "Alimento cadastrado com sucesso." })
             }
@@ -118,6 +145,27 @@ export default {
             const updated = await this.updateFood(this.food)
             if (updated) {
                 await this.findAllFoods()
+                this.food.nutritionFacts.forEach(element => {
+                    switch(element.nutrient.type){
+                        case 'CARBOHYDRATE':
+                            element.nutrient.type='Carbohidrato'
+                            break
+                        case 'PROTEIN':
+                            element.nutrient.type='Proteina'
+                            break
+                        case 'FAT':
+                            element.nutrient.type='Gordura'
+                            break
+                        case 'VITAMIN':
+                            element.nutrient.type='Vitamina'
+                            break
+                        case 'MINERALS':
+                            element.nutrient.type='Mineral'
+                            break
+                        default:
+                            break
+                    }
+                });
                 this.closeModal()
                 this.setSuccess({ message: "Alimento atualziado com sucesso." })
             }

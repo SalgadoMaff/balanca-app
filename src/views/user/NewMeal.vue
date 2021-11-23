@@ -15,20 +15,28 @@
                 :disabled="!deviceCache"
                 rounded
                 block
-                class="green my-2 white--text"
+                class="red my-2 white--text"
                 @click="disconnect"
                 ><v-spacer></v-spacer
                 >Desconectar da balança<v-spacer></v-spacer
+            ></v-btn>
+            <v-btn
+                :disabled="!deviceCache"
+                rounded
+                block
+                class="blue my-2 white--text"
+                @click="()=>{this.chat='c'; send()}"
+                ><v-spacer></v-spacer
+                >Calibrar<v-spacer></v-spacer
             ></v-btn>
             <v-card-text class="text-primary">
                 <v-col cols="12">
                     <v-row class="mb-2 align-center">
                         <v-autocomplete :items="foods" v-model="food.foodId" item-text="name" item-value="_id"
                                         label="Informe o alimento" no-data-text="Sem alimento" />
-
-                        <v-text-field v-model="food.quantity" type="number" label="Informe a quantidade" />
-
-                        <v-btn @click="addFoodToMeal" icon>
+                        <v-spacer></v-spacer>
+                        <v-chip depressed color="primary"> <span>{{new_weight}} kg</span></v-chip>
+                        <v-btn @click="()=>{this.chat='p'; send(); addFoodToMeal();}" icon>
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-row>
@@ -66,8 +74,10 @@ export default {
             foods: [],
             food: {
                 foodId: "",
-                quantity: ""
+                quantity: 0
             },
+            new_weight:0,
+            total_weight:0,
             meal: [],
             logs:["teste"],
             deviceCache:null,
@@ -94,6 +104,7 @@ export default {
             this.foods = this.getFoods
         },
         addFoodToMeal() {
+            this.food.quantity=this.total_weight
             const valid = this.validateFood()
             if (valid) {
                 const food = this.foods.find((f) => f._id == this.food.foodId)
@@ -165,7 +176,7 @@ export default {
             this.log("Requesting bluetooth device...");
             return navigator.bluetooth
             .requestDevice({
-            filters: [{ name: 'Balança Inteligente' }]
+            filters: [{ services: [0xffe0] },{ name: 'Balança' }]
             })
             .then(device => {
               this.log('"' + device.name + '" bluetooth device selected');
@@ -276,6 +287,7 @@ export default {
           this.readBuffer = "";
           if (data) {
             // this.receive(data);
+            this.new_weight=value;
             this.log(value, "in");
           }
         } else {
