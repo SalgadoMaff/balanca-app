@@ -34,14 +34,14 @@
                     </v-row>
 
                     <v-row class="d-flex justify-center align-center">
-                        <v-chip class="chip" depressed color="primary"><span>{{ newWeight }} kg</span></v-chip>
+                        <v-chip class="chip" depressed color="primary"><span>{{ totalWeight }} kg</span></v-chip>
                         <v-btn class="button" @click="addMeasurement" icon>
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-row>
 
                     <v-row>
-                        <v-chip class="mr-2 mb-2" v-for="item in meal" :key="item._id" close close-icon="mdi-close">
+                        <v-chip class="mr-2 mb-2" v-for="item in meal" :key="item._id">
                             <span>{{ item.name }} - {{ item.quantity }}</span>
                         </v-chip>
                     </v-row>
@@ -78,9 +78,12 @@ export default {
                     value: "kg"
                 }
             },
-            newWeight: 0,
+            newWeight:0.0,
+            totalWeight: 0.0,
+            weightList:[],
             meal: [],
             logs: ["teste"],
+            comunicated:false,
             deviceCache: null,
             characteristicCache: null,
             readBuffer: "",
@@ -140,6 +143,9 @@ export default {
         clearAll() {
             this.clearInput()
             this.clearMeal()
+            this.newWeight=0.0
+            this.totalWeight=0.0
+            this.weightList=[]
         },
         clearInput() {
             this.food = {
@@ -149,6 +155,7 @@ export default {
                     value: "kg"
                 }
             }
+            this.newWeight=0.0
         },
         clearMeal() {
             this.meal = []
@@ -178,6 +185,7 @@ export default {
                         "gattserverdisconnected",
                         this.handleDisconnection
                     )
+                    console.log(this.deviceCache)
                     return this.deviceCache
                 })
         },
@@ -199,7 +207,6 @@ export default {
                 return Promise.resolve(this.characteristicCache)
             }
             this.log("Connecting to GATT server...")
-            console.log(device)
             return device.gatt
                 .connect()
                 .then(server => {
@@ -237,6 +244,7 @@ export default {
         },
         // Disconnect
         disconnect() {
+            this.clearAll()
             if (this.deviceCache) {
                 this.log(
                     "Disconnecting from \"" +
@@ -279,8 +287,24 @@ export default {
                     this.readBuffer = ""
                     if (data) {
                         // this.receive(data);
-                        this.newWeight = value
+                            this.totalWeight=parseFloat(data)
+                            this.totalWeight=this.totalWeight.toFixed(3)
+                            if(this.weightList.length==0){
+                                this.weightList.push(this.totalWeight)
+                                this.newWeight=this.totalWeight
+                            }else{
+                                this.newWeight=this.totalWeight
+                                this.weightList.forEach(element => {
+                                    this.newWeight=this.newWeight-element
+                                });
+                                this.newWeight=this.newWeight.toFixed(3)
+                                this.weightList.push(this.newWeight)
+                            }
+                            this.addFoodToMeal()    
+                        
+                        
                         this.log(value, "in")
+
                     }
                 } else {
                     this.readBuffer += c
@@ -294,10 +318,9 @@ export default {
         addMeasurement() {
             this.chat = "p"
             this.send()
-            this.addFoodToMeal()
+
         },
         send() {
-            console.log(this.chat)
             let data = String(this.chat)
             if (!data || !this.characteristicCache) {
                 return
