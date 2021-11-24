@@ -2,47 +2,46 @@
     <v-container>
         <v-card>
             <v-card-title>Nova Refeição</v-card-title>
-            <v-btn
-                :disabled="deviceCache"
-                rounded
-                block
-                class="green my-2 white--text"
-                @click="connect"
-                ><v-spacer></v-spacer
-                >Conectar com a balança<v-spacer></v-spacer
-            ></v-btn>
-            <v-btn
-                :disabled="!deviceCache"
-                rounded
-                block
-                class="red my-2 white--text"
-                @click="disconnect"
-                ><v-spacer></v-spacer
-                >Desconectar da balança<v-spacer></v-spacer
-            ></v-btn>
-            <v-btn
-                :disabled="!deviceCache"
-                rounded
-                block
-                class="blue my-2 white--text"
-                @click="()=>{this.chat='c'; send()}"
-                ><v-spacer></v-spacer
-                >Calibrar<v-spacer></v-spacer
-            ></v-btn>
-            <v-card-text class="text-primary">
+
+            <v-card-text class="text-primary d-flex align-center justify-center flex-wrap">
                 <v-col cols="12">
-                    <v-row class="mb-2 align-center">
-                        <v-autocomplete :items="foods" v-model="food.foodId" item-text="name" item-value="_id"
-                                        label="Informe o alimento" no-data-text="Sem alimento" />
-                        <v-spacer></v-spacer>
-                        <v-chip depressed color="primary"> <span>{{new_weight}} kg</span></v-chip>
-                        <v-btn @click="()=>{this.chat='p'; send(); addFoodToMeal();}" icon>
+                    <v-btn
+                        :disabled="deviceCache"
+                        block
+                        class="green my-2 white--text"
+                        @click="connect">
+                        Conectar com a balança
+                    </v-btn>
+                    <v-btn
+                        :disabled="!deviceCache"
+                        block
+                        class="red my-2 white--text"
+                        @click="disconnect">
+                        Desconectar
+                    </v-btn>
+                    <v-btn
+                        :disabled="!deviceCache"
+                        block
+                        class="blue my-2 white--text"
+                        @click="calibrate">
+                        Calibrar
+                    </v-btn>
+                </v-col>
+                <v-col cols="12" class="mb-2">
+                    <v-row>
+                        <v-autocomplete :items="foods" v-model="food.foodId" item-text="name"
+                                        item-value="_id" label="Informe o alimento" no-data-text="Sem alimento" />
+                    </v-row>
+
+                    <v-row class="d-flex justify-center align-center">
+                        <v-chip class="chip" depressed color="primary"><span>{{ newWeight }} kg</span></v-chip>
+                        <v-btn class="button" @click="addMeasurement" icon>
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </v-row>
 
-                    <v-row class="mb-2">
-                        <v-chip class="mr-2" v-for="item in meal" :key="item._id" close close-icon="mdi-close">
+                    <v-row>
+                        <v-chip class="mr-2 mb-2" v-for="item in meal" :key="item._id" close close-icon="mdi-close">
                             <span>{{ item.name }} - {{ item.quantity }}</span>
                         </v-chip>
                     </v-row>
@@ -52,7 +51,7 @@
             <v-card-actions class="justify-center">
                 <v-btn @click="clearAll">
                     <v-icon>mdi-cancel</v-icon>
-                    <span>Cancelar</span>
+                    <span>Limpar</span>
                 </v-btn>
 
                 <v-btn class="primary" @click="saveMeal" :loading="loading" :disabled="loading">
@@ -69,22 +68,24 @@ import { mapActions, mapGetters, mapMutations } from "vuex"
 
 export default {
     name: "NewMeal",
-    data:()=> {
+    data: () => {
         return {
             foods: [],
             food: {
                 foodId: "",
-                quantity: 0
+                quantity: {
+                    unit: "",
+                    value: "kg"
+                }
             },
-            new_weight:0,
-            total_weight:0,
+            newWeight: 0,
             meal: [],
-            logs:["teste"],
-            deviceCache:null,
-            characteristicCache:null,
-            readBuffer:"",
-            chat:"",
-            serial:"",
+            logs: ["teste"],
+            deviceCache: null,
+            characteristicCache: null,
+            readBuffer: "",
+            chat: "",
+            serial: "",
             loading: false
         }
     },
@@ -104,26 +105,16 @@ export default {
             this.foods = this.getFoods
         },
         addFoodToMeal() {
-            this.food.quantity=this.total_weight
-            const valid = this.validateFood()
-            if (valid) {
-                const food = this.foods.find((f) => f._id == this.food.foodId)
-                this.meal.push({
-                    foodId: this.food.foodId,
-                    quantity: this.food.quantity,
-                    name: food.name
-                })
+            if (this.validateFood()) {
+                this.food.quantity.value = this.newWeight
+                this.meal.push(this.food)
                 this.clearInput()
             }
         },
         async saveMeal() {
             this.loading = true
-            const valid = this.validateMeal()
-            if (valid) {
-                const created = await this.createMeal({
-                    userId: this.getUser._id,
-                    meal: this.meal
-                })
+            if (this.validateMeal()) {
+                const created = await this.createMeal(this.meal)
 
                 if (created) {
                     this.setSuccess({ message: "Refeição criada com sucesso!" })
@@ -135,10 +126,6 @@ export default {
         validateFood() {
             if (!this.food.foodId) {
                 this.setError({ message: "Selecione o alimento!" })
-                return false
-            }
-            if (!this.food.quantity) {
-                this.setError({ message: "Informe a quantidade!" })
                 return false
             }
             return true
@@ -155,8 +142,13 @@ export default {
             this.clearMeal()
         },
         clearInput() {
-            this.food.foodId = ""
-            this.food.quantity = ""
+            this.food = {
+                foodId: "",
+                quantity: {
+                    unit: "",
+                    value: "kg"
+                }
+            }
         },
         clearMeal() {
             this.meal = []
@@ -164,161 +156,181 @@ export default {
         //Bluetooth
         connect() {
             return (this.deviceCache
-                ? Promise.resolve(this.deviceCache)
-                : this.requestBluetoothDevice()
-                
+                    ? Promise.resolve(this.deviceCache)
+                    : this.requestBluetoothDevice()
+
             )
-            .then(device => this.connectDeviceAndCacheCharacteristic(device))
-            .then(characteristic => this.startNotifications(characteristic))
-            .catch(error => this.log(error));
+                .then(device => this.connectDeviceAndCacheCharacteristic(device))
+                .then(characteristic => this.startNotifications(characteristic))
+                .catch(error => this.log(error))
         },
         requestBluetoothDevice() {
-            this.log("Requesting bluetooth device...");
+            this.log("Requesting bluetooth device...")
             return navigator.bluetooth
-            .requestDevice({
-            filters: [{ services: [0xffe0] },{ name: 'Balança' }]
+                .requestDevice({
+                    filters: [{ services: [0xffe0] }, { name: "Balança" }]
+                })
+                .then(device => {
+                    this.log("\"" + device.name + "\" bluetooth device selected")
+                    this.deviceCache = device
+                    // Added line
+                    this.deviceCache.addEventListener(
+                        "gattserverdisconnected",
+                        this.handleDisconnection
+                    )
+                    return this.deviceCache
+                })
+        },
+        handleDisconnection(event) {
+            let device = event.target
+            this.log(
+                "\"" +
+                device.name +
+                "\" bluetooth device disconnected, trying to reconnect..."
+            )
+            this.connectDeviceAndCacheCharacteristic(device)
+                .then(characteristic => this.startNotifications(characteristic))
+                .catch(error => this.log(error))
+        },
+        // Connect to the device specified, get service and characteristic
+        connectDeviceAndCacheCharacteristic(device) {
+
+            if (device.gatt && device.gatt.connected && this.characteristicCache) {
+                return Promise.resolve(this.characteristicCache)
+            }
+            this.log("Connecting to GATT server...")
+            console.log(device)
+            return device.gatt
+                .connect()
+                .then(server => {
+                    this.log("GATT server connected, getting service...")
+                    return server.getPrimaryService(0xffe0)
+                })
+                .then(service => {
+                    this.log("Service found, getting characteristic...")
+                    return service.getCharacteristic(0xffe1)
+                })
+                .then(characteristic => {
+                    this.log("Characteristic found")
+                    this.characteristicCache = characteristic
+                    return this.characteristicCache
+                })
+        },
+        // Enable the characteristic changes notification
+        startNotifications(characteristic) {
+            this.log("Starting notifications...")
+            return characteristic.startNotifications().then(() => {
+                this.log("Notifications started")
+                // Added line
+                characteristic.addEventListener(
+                    "characteristicvaluechanged",
+                    this.handleCharacteristicValueChanged
+                )
             })
-            .then(device => {
-              this.log('"' + device.name + '" bluetooth device selected');
-              this.deviceCache = device;
-              // Added line
-              this.deviceCache.addEventListener(
-              "gattserverdisconnected",
-              this.handleDisconnection
-            );
-          return this.deviceCache;
-        });
-    },
-    handleDisconnection(event) {
-      let device = event.target;
-      this.log(
-        '"' +
-          device.name +
-          '" bluetooth device disconnected, trying to reconnect...'
-      );
-      this.connectDeviceAndCacheCharacteristic(device)
-        .then(characteristic => this.startNotifications(characteristic))
-        .catch(error => this.log(error));
-    },
-    // Connect to the device specified, get service and characteristic
-    connectDeviceAndCacheCharacteristic(device) {
-      
-      if (device.gatt && device.gatt.connected && this.characteristicCache) {
-        return Promise.resolve(this.characteristicCache);
-      }
-      this.log("Connecting to GATT server...");
-      console.log(device)
-      return device.gatt
-        .connect()
-        .then(server => {
-          this.log("GATT server connected, getting service...");
-          return server.getPrimaryService(0xffe0);
-        })
-        .then(service => {
-          this.log("Service found, getting characteristic...");
-          return service.getCharacteristic(0xffe1);
-        })
-        .then(characteristic => {
-          this.log("Characteristic found");
-          this.characteristicCache = characteristic;
-          return this.characteristicCache;
-        });
-    },
-    // Enable the characteristic changes notification
-    startNotifications(characteristic) {
-      this.log("Starting notifications...");
-      return characteristic.startNotifications().then(() => {
-        this.log("Notifications started");
-        // Added line
-        characteristic.addEventListener(
-          "characteristicvaluechanged",
-          this.handleCharacteristicValueChanged
-        );
-      });
-    },
-    // Output to terminal
-    log(data, type) {
-      if (type == "in") this.logs.unshift(`IN: ${data}`);
-      else if (type == "out") this.logs.unshift(`OUT: ${data}`);
-      else this.logs.unshift(data);
-      console.log(this.logs[0])
-    },
-    // Disconnect
-    disconnect() {
-      if (this.deviceCache) {
-        this.log(
-          'Disconnecting from "' +
-            this.deviceCache.name +
-            '" bluetooth device...'
-        );
-        this.deviceCache.removeEventListener(
-          "gattserverdisconnected",
-          this.handleDisconnection
-        );
-        if (this.deviceCache.gatt.connected) {
-          this.deviceCache.gatt.disconnect();
-          this.log(
-            '"' + this.deviceCache.name + '" bluetooth device disconnected'
-          );
-        } else {
-          this.log(
-            '"' +
-              this.deviceCache.name +
-              '" bluetooth device is already disconnected'
-          );
+        },
+        // Output to terminal
+        log(data, type) {
+            if (type == "in") this.logs.unshift(`IN: ${data}`)
+            else if (type == "out") this.logs.unshift(`OUT: ${data}`)
+            else this.logs.unshift(data)
+            console.log(this.logs[0])
+        },
+        // Disconnect
+        disconnect() {
+            if (this.deviceCache) {
+                this.log(
+                    "Disconnecting from \"" +
+                    this.deviceCache.name +
+                    "\" bluetooth device..."
+                )
+                this.deviceCache.removeEventListener(
+                    "gattserverdisconnected",
+                    this.handleDisconnection
+                )
+                if (this.deviceCache.gatt.connected) {
+                    this.deviceCache.gatt.disconnect()
+                    this.log(
+                        "\"" + this.deviceCache.name + "\" bluetooth device disconnected"
+                    )
+                } else {
+                    this.log(
+                        "\"" +
+                        this.deviceCache.name +
+                        "\" bluetooth device is already disconnected"
+                    )
+                }
+            }
+            // Added condition
+            if (this.characteristicCache) {
+                this.characteristicCache.removeEventListener(
+                    "characteristicvaluechanged",
+                    this.handleCharacteristicValueChanged
+                )
+                this.characteristicCache = null
+            }
+            this.deviceCache = null
+        },
+        // Data receiving
+        handleCharacteristicValueChanged(event) {
+            let value = new TextDecoder().decode(event.target.value)
+            for (let c of value) {
+                if (c === "\n") {
+                    let data = this.readBuffer.trim()
+                    this.readBuffer = ""
+                    if (data) {
+                        // this.receive(data);
+                        this.newWeight = value
+                        this.log(value, "in")
+                    }
+                } else {
+                    this.readBuffer += c
+                }
+            }
+        },
+        calibrate() {
+            this.chat = "c"
+            this.send()
+        },
+        addMeasurement() {
+            this.chat = "p"
+            this.send()
+            this.addFoodToMeal()
+        },
+        send() {
+            console.log(this.chat)
+            let data = String(this.chat)
+            if (!data || !this.characteristicCache) {
+                return
+            }
+            data += "\n"
+            if (data.length > 20) {
+                let chunks = data.match(/(.|[\r\n]){1,20}/g)
+                this.writeToCharacteristic(this.characteristicCache, chunks[0])
+                for (let i = 1; i < chunks.length; i++) {
+                    setTimeout(() => {
+                        this.writeToCharacteristic(this.characteristicCache, chunks[i])
+                    }, i * 100)
+                }
+            } else {
+                this.writeToCharacteristic(this.characteristicCache, data)
+            }
+            this.log(data, "out")
+            this.chat = ""
+        },
+        writeToCharacteristic(characteristic, data) {
+            characteristic.writeValue(new TextEncoder().encode(data))
         }
-      }
-      // Added condition
-      if (this.characteristicCache) {
-        this.characteristicCache.removeEventListener(
-          "characteristicvaluechanged",
-          this.handleCharacteristicValueChanged
-        );
-        this.characteristicCache = null;
-      }
-      this.deviceCache = null;
-    },
-    // Data receiving
-    handleCharacteristicValueChanged(event) {
-      let value = new TextDecoder().decode(event.target.value);
-      for (let c of value) {
-        if (c === "\n") {
-          let data = this.readBuffer.trim();
-          this.readBuffer = "";
-          if (data) {
-            // this.receive(data);
-            this.new_weight=value;
-            this.log(value, "in");
-          }
-        } else {
-          this.readBuffer += c;
-        }
-      }
-    },
-    send() {
-      console.log(this.chat);
-      let data = String(this.chat);
-      if (!data || !this.characteristicCache) {
-        return;
-      }
-      data += "\n";
-      if (data.length > 20) {
-        let chunks = data.match(/(.|[\r\n]){1,20}/g);
-        this.writeToCharacteristic(this.characteristicCache, chunks[0]);
-        for (let i = 1; i < chunks.length; i++) {
-          setTimeout(() => {
-            this.writeToCharacteristic(this.characteristicCache, chunks[i]);
-          }, i * 100);
-        }
-      } else {
-        this.writeToCharacteristic(this.characteristicCache, data);
-      }
-      this.log(data, "out");
-      this.chat = "";
-    },
-    writeToCharacteristic(characteristic, data) {
-      characteristic.writeValue(new TextEncoder().encode(data));
-    }
     }
 }
 </script>
+
+<style lang="sass">
+.chip
+    width: 100px
+    display: flex
+    justify-content: center
+
+.button
+    margin-left: 6px
+    background-color: #e5e2e2 !important
+</style>
