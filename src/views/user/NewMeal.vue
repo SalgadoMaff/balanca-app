@@ -42,7 +42,7 @@
 
                     <v-row>
                         <v-chip class="mr-2 mb-2" v-for="item in meal" :key="item._id">
-                            <span>{{ item.name }} - {{ item.quantity }}</span>
+                            <span>{{ item.foodId }} - {{ item.quantity.value }} {{ item.quantity.unit }}</span>
                         </v-chip>
                     </v-row>
                 </v-col>
@@ -74,8 +74,8 @@ export default {
             food: {
                 foodId: "",
                 quantity: {
-                    unit: "",
-                    value: "kg"
+                    unit: "kg",
+                    value: ""
                 }
             },
             newWeight:0.0,
@@ -83,9 +83,8 @@ export default {
             weightList:[],
             meal: [],
             logs: ["teste"],
-            comunicated:false,
             deviceCache: null,
-            characteristicCache: null,
+            gattCharacteristic: null,
             readBuffer: "",
             chat: "",
             serial: "",
@@ -108,7 +107,7 @@ export default {
             this.foods = this.getFoods
         },
         addFoodToMeal() {
-            if (this.validateFood()) {
+            if (this.validateWeight()&&this.validateFood()) {
                 this.food.quantity.value = this.newWeight
                 this.meal.push(this.food)
                 this.clearInput()
@@ -133,6 +132,35 @@ export default {
             }
             return true
         },
+        validateWeight(){
+            console.log(this.weightList)
+            console.log(this.weightList.length)
+            if(this.newWeight==0){
+                if(this.weightList.length==1){
+                    this.totalWeight=0
+                }
+                this.weightList.pop(this.weightList.length)
+                
+                this.setError({message: "Coloque algum alimento na balança!"})
+                return false
+            }else if(this.newWeight<0){
+                if(this.weightList.length==1){
+                    this.totalWeight=0
+                    this.weightList.pop()
+                }else{
+                    this.totalWeight=0
+                    this.weightList.forEach(element=>{
+                        if(element>0){
+                            this.totalWeight=this.totalWeight+element
+                        }
+                    })
+                    this.weightList.pop()
+                }
+                this.setError({message: "Calibre a balança"})
+                return false
+            }
+            return true
+        },
         validateMeal() {
             if (this.meal.length < 1) {
                 this.setError({ message: "Adicione ao menos um alimento!" })
@@ -141,11 +169,13 @@ export default {
             return true
         },
         clearAll() {
+            this.newWeight=0
+            this.totalWeight=0
+            while(this.weightList.length>0){
+                this.weightList.pop()
+            }
             this.clearInput()
             this.clearMeal()
-            this.newWeight=0.0
-            this.totalWeight=0.0
-            this.weightList=[]
         },
         clearInput() {
             this.food = {
@@ -155,7 +185,7 @@ export default {
                     value: "kg"
                 }
             }
-            this.newWeight=0.0
+            this.newWeight=0
         },
         clearMeal() {
             this.meal = []
@@ -185,7 +215,6 @@ export default {
                         "gattserverdisconnected",
                         this.handleDisconnection
                     )
-                    console.log(this.deviceCache)
                     return this.deviceCache
                 })
         },
@@ -203,8 +232,8 @@ export default {
         // Connect to the device specified, get service and characteristic
         connectDeviceAndCacheCharacteristic(device) {
 
-            if (device.gatt && device.gatt.connected && this.characteristicCache) {
-                return Promise.resolve(this.characteristicCache)
+            if (device.gatt.connected && this.gattCharacteristic) {
+                return Promise.resolve(this.gattCharacteristic)
             }
             this.log("Connecting to GATT server...")
             return device.gatt
@@ -219,8 +248,8 @@ export default {
                 })
                 .then(characteristic => {
                     this.log("Characteristic found")
-                    this.characteristicCache = characteristic
-                    return this.characteristicCache
+                    this.gattCharacteristic = characteristic
+                    return this.gattCharacteristic
                 })
         },
         // Enable the characteristic changes notification
@@ -237,14 +266,14 @@ export default {
         },
         // Output to terminal
         log(data, type) {
-            if (type == "in") this.logs.unshift(`IN: ${data}`)
-            else if (type == "out") this.logs.unshift(`OUT: ${data}`)
+            if (type == "in"){
+                this.logs.unshift(`IN: ${data}`)
+            }else if (type == "out") this.logs.unshift(`OUT: ${data}`)
             else this.logs.unshift(data)
             console.log(this.logs[0])
         },
         // Disconnect
         disconnect() {
-            this.clearAll()
             if (this.deviceCache) {
                 this.log(
                     "Disconnecting from \"" +
@@ -269,13 +298,14 @@ export default {
                 }
             }
             // Added condition
-            if (this.characteristicCache) {
-                this.characteristicCache.removeEventListener(
+            if (this.gattCharacteristic) {
+                this.gattCharacteristic.removeEventListener(
                     "characteristicvaluechanged",
                     this.handleCharacteristicValueChanged
                 )
-                this.characteristicCache = null
+                this.gattCharacteristic = null
             }
+            this.clearAll()
             this.deviceCache = null
         },
         // Data receiving
@@ -287,24 +317,18 @@ export default {
                     this.readBuffer = ""
                     if (data) {
                         // this.receive(data);
-                            this.totalWeight=parseFloat(data)
-                            this.totalWeight=this.totalWeight.toFixed(3)
-                            if(this.weightList.length==0){
-                                this.weightList.push(this.totalWeight)
-                                this.newWeight=this.totalWeight
-                            }else{
-                                this.newWeight=this.totalWeight
+                            this.totalWeight=parseFloat(parseFloat(data).toFixed(3))
+                            this.newWeight=this.totalWeight
+                            if(this.weightList.length>0){
                                 this.weightList.forEach(element => {
                                     this.newWeight=this.newWeight-element
                                 });
-                                this.newWeight=this.newWeight.toFixed(3)
+                            }   
+                                this.newWeight=parseFloat(parseFloat(this.newWeight).toFixed(3))
                                 this.weightList.push(this.newWeight)
-                            }
-                            this.addFoodToMeal()    
-                        
-                        
-                        this.log(value, "in")
-
+                                this.log(value, "in")
+                                this.addFoodToMeal()    
+                            
                     }
                 } else {
                     this.readBuffer += c
@@ -322,26 +346,16 @@ export default {
         },
         send() {
             let data = String(this.chat)
-            if (!data || !this.characteristicCache) {
+            if (!data || !this.gattCharacteristic) {
                 return
             }
             data += "\n"
-            if (data.length > 20) {
-                let chunks = data.match(/(.|[\r\n]){1,20}/g)
-                this.writeToCharacteristic(this.characteristicCache, chunks[0])
-                for (let i = 1; i < chunks.length; i++) {
-                    setTimeout(() => {
-                        this.writeToCharacteristic(this.characteristicCache, chunks[i])
-                    }, i * 100)
-                }
-            } else {
-                this.writeToCharacteristic(this.characteristicCache, data)
-            }
+            this.writeToCharacteristic(this.gattCharacteristic, data)
             this.log(data, "out")
             this.chat = ""
         },
         writeToCharacteristic(characteristic, data) {
-            characteristic.writeValue(new TextEncoder().encode(data))
+            characteristic.writeValueWithResponse(new TextEncoder().encode(data))
         }
     }
 }
