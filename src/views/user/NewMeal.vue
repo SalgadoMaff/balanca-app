@@ -41,8 +41,8 @@
                     </v-row>
 
                     <v-row>
-                        <v-chip class="mr-2 mb-2" v-for="item in meal" :key="item._id">
-                            <span>{{ item.foodId }} - {{ item.quantity.value }} {{ item.quantity.unit }}</span>
+                        <v-chip class="mr-2 mb-2" v-for="item in mealView" :key="item._id">
+                            <span>{{ item.name }} - {{ item.quantity.value }} {{ item.quantity.unit }}</span>
                         </v-chip>
                     </v-row>
                 </v-col>
@@ -78,10 +78,16 @@ export default {
                     value: ""
                 }
             },
+            substitute: {
+                name: "",
+                foodId: "",
+                quantity: {}
+            },
             newWeight:0.0,
             totalWeight: 0.0,
             weightList:[],
             meal: [],
+            mealView: [],
             logs: ["teste"],
             deviceCache: null,
             gattCharacteristic: null,
@@ -107,10 +113,30 @@ export default {
             this.foods = this.getFoods
         },
         addFoodToMeal() {
-            if (this.validateWeight()&&this.validateFood()) {
-                this.food.quantity.value = this.newWeight
-                this.meal.push(this.food)
-                this.clearInput()
+            if (this.validateFood()) {
+                if(this.validateWeight()){
+                    this.food.quantity.value = this.newWeight
+                    if(this.meal.length>0 &&
+                    this.meal.some(element => element.foodId===this.food.foodId)){
+                        for (let i = 0; i < this.meal.length; i++) {
+                            if(this.meal[i].foodId==this.food.foodId){
+                            this.meal[i].quantity.value+=parseFloat(this.food.quantity.value.toFixed(3))
+                            this.mealView[i].quantity.value+=parseFloat(this.food.quantity.value.toFixed(3))
+                            this.weightList[i]+=parseFloat(this.food.quantity.value.toFixed(3))
+                            this.weightList.pop()
+                                break;
+                            }
+                        }
+                    }else{
+                        this.meal.push(this.food)
+                        let obj=this.foods.find(element=> element._id===this.food.foodId)
+                        this.substitute.name=obj.name;
+                        this.substitute.foodId=this.food.foodId
+                        this.substitute.quantity=this.food.quantity
+                        this.mealView.push(this.substitute)
+                    }
+                    this.clearInput()
+                }
             }
         },
         async saveMeal() {
@@ -128,13 +154,12 @@ export default {
         validateFood() {
             if (!this.food.foodId) {
                 this.setError({ message: "Selecione o alimento!" })
+
                 return false
             }
             return true
         },
         validateWeight(){
-            console.log(this.weightList)
-            console.log(this.weightList.length)
             if(this.newWeight==0){
                 if(this.weightList.length==1){
                     this.totalWeight=0
@@ -159,6 +184,7 @@ export default {
                 this.setError({message: "Calibre a balança"})
                 return false
             }
+            console.log(this.totalWeight)
             return true
         },
         validateMeal() {
@@ -169,26 +195,32 @@ export default {
             return true
         },
         clearAll() {
-            this.newWeight=0
-            this.totalWeight=0
-            while(this.weightList.length>0){
-                this.weightList.pop()
-            }
             this.clearInput()
             this.clearMeal()
         },
         clearInput() {
+            this.newWeight=0
             this.food = {
                 foodId: "",
                 quantity: {
-                    unit: "",
-                    value: "kg"
+                    unit: "kg",
+                    value: ""
                 }
+            }
+            this.substitute = {
+                name:"",
+                foodId: "",
+                quantity: {}
             }
             this.newWeight=0
         },
         clearMeal() {
+            while(this.weightList.length>0){
+                this.weightList.pop()
+            }
+            this.totalWeight=0
             this.meal = []
+            this.mealView = []
         },
         //Bluetooth
         connect() {
@@ -305,7 +337,7 @@ export default {
                 )
                 this.gattCharacteristic = null
             }
-            this.clearAll()
+            this.clearInput()
             this.deviceCache = null
         },
         // Data receiving
