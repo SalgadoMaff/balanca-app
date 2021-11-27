@@ -83,9 +83,9 @@ export default {
                 foodId: "",
                 quantity: {}
             },
-            newWeight:0.0,
+            newWeight: 0.0,
             totalWeight: 0.0,
-            weightList:[],
+            weightList: [],
             meal: [],
             mealView: [],
             logs: ["teste"],
@@ -114,25 +114,25 @@ export default {
         },
         addFoodToMeal() {
             if (this.validateFood()) {
-                if(this.validateWeight()){
+                if (this.validateWeight()) {
                     this.food.quantity.value = this.newWeight
-                    if(this.meal.length>0 &&
-                    this.meal.some(element => element.foodId===this.food.foodId)){
+                    if (this.meal.length > 0 &&
+                        this.meal.some(element => element.foodId === this.food.foodId)) {
                         for (let i = 0; i < this.meal.length; i++) {
-                            if(this.meal[i].foodId==this.food.foodId){
-                            this.meal[i].quantity.value+=parseFloat(this.food.quantity.value.toFixed(3))
-                            this.mealView[i].quantity.value+=parseFloat(this.food.quantity.value.toFixed(3))
-                            this.weightList[i]+=parseFloat(this.food.quantity.value.toFixed(3))
-                            this.weightList.pop()
-                                break;
+                            if (this.meal[i].foodId == this.food.foodId) {
+                                this.meal[i].quantity.value += parseFloat(this.food.quantity.value.toFixed(3))
+                                this.mealView[i].quantity.value += parseFloat(this.food.quantity.value.toFixed(3))
+                                this.weightList[i] += parseFloat(this.food.quantity.value.toFixed(3))
+                                this.weightList.pop()
+                                break
                             }
                         }
-                    }else{
+                    } else {
                         this.meal.push(this.food)
-                        let obj=this.foods.find(element=> element._id===this.food.foodId)
-                        this.substitute.name=obj.name;
-                        this.substitute.foodId=this.food.foodId
-                        this.substitute.quantity=this.food.quantity
+                        let obj = this.foods.find(element => element._id === this.food.foodId)
+                        this.substitute.name = obj.name
+                        this.substitute.foodId = this.food.foodId
+                        this.substitute.quantity = this.food.quantity
                         this.mealView.push(this.substitute)
                     }
                     this.clearInput()
@@ -159,29 +159,29 @@ export default {
             }
             return true
         },
-        validateWeight(){
-            if(this.newWeight==0){
-                if(this.weightList.length==1){
-                    this.totalWeight=0
+        validateWeight() {
+            if (this.newWeight == 0) {
+                if (this.weightList.length == 1) {
+                    this.totalWeight = 0
                 }
                 this.weightList.pop(this.weightList.length)
-                
-                this.setError({message: "Coloque algum alimento na balança!"})
+
+                this.setError({ message: "Coloque algum alimento na balança!" })
                 return false
-            }else if(this.newWeight<0){
-                if(this.weightList.length==1){
-                    this.totalWeight=0
+            } else if (this.newWeight < 0) {
+                if (this.weightList.length == 1) {
+                    this.totalWeight = 0
                     this.weightList.pop()
-                }else{
-                    this.totalWeight=0
-                    this.weightList.forEach(element=>{
-                        if(element>0){
-                            this.totalWeight=this.totalWeight+element
+                } else {
+                    this.totalWeight = 0
+                    this.weightList.forEach(element => {
+                        if (element > 0) {
+                            this.totalWeight = this.totalWeight + element
                         }
                     })
                     this.weightList.pop()
                 }
-                this.setError({message: "Calibre a balança"})
+                this.setError({ message: "Calibre a balança" })
                 return false
             }
             console.log(this.totalWeight)
@@ -199,7 +199,7 @@ export default {
             this.clearMeal()
         },
         clearInput() {
-            this.newWeight=0
+            this.newWeight = 0
             this.food = {
                 foodId: "",
                 quantity: {
@@ -208,17 +208,17 @@ export default {
                 }
             }
             this.substitute = {
-                name:"",
+                name: "",
                 foodId: "",
                 quantity: {}
             }
-            this.newWeight=0
+            this.newWeight = 0
         },
         clearMeal() {
-            while(this.weightList.length>0){
+            while (this.weightList.length > 0) {
                 this.weightList.pop()
             }
-            this.totalWeight=0
+            this.totalWeight = 0
             this.meal = []
             this.mealView = []
         },
@@ -298,9 +298,9 @@ export default {
         },
         // Output to terminal
         log(data, type) {
-            if (type == "in"){
+            if (type == "in") {
                 this.logs.unshift(`IN: ${data}`)
-            }else if (type == "out") this.logs.unshift(`OUT: ${data}`)
+            } else if (type == "out") this.logs.unshift(`OUT: ${data}`)
             else this.logs.unshift(data)
             console.log(this.logs[0])
         },
@@ -349,18 +349,18 @@ export default {
                     this.readBuffer = ""
                     if (data) {
                         // this.receive(data);
-                            this.totalWeight=parseFloat(parseFloat(data).toFixed(3))
-                            this.newWeight=this.totalWeight
-                            if(this.weightList.length>0){
-                                this.weightList.forEach(element => {
-                                    this.newWeight=this.newWeight-element
-                                });
-                            }   
-                                this.newWeight=parseFloat(parseFloat(this.newWeight).toFixed(3))
-                                this.weightList.push(this.newWeight)
-                                this.log(value, "in")
-                                this.addFoodToMeal()    
-                            
+                        this.totalWeight = parseFloat(parseFloat(data).toFixed(3))
+                        this.newWeight = this.totalWeight
+                        if (this.weightList.length > 0) {
+                            this.weightList.forEach(element => {
+                                this.newWeight = this.newWeight - element
+                            })
+                        }
+                        this.newWeight = parseFloat(parseFloat(this.newWeight).toFixed(3))
+                        this.weightList.push(this.newWeight)
+                        this.log(value, "in")
+                        this.addFoodToMeal()
+
                     }
                 } else {
                     this.readBuffer += c
