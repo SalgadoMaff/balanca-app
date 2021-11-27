@@ -15,18 +15,18 @@ const mutations = {
 }
 
 const actions = {
-    createMeal: async ({ commit }, { userId, meal }) => {
-        const response = await mealApi.create(userId, meal)
+    createMeal: async ({ commit }, meal) => {
+        const response = await mealApi.create(meal)
         if (!(response instanceof Error)) {
             return true
         }
         return false
     },
-    findAllMealsByUser: async ({ commit }, userId) => {
+    findAllMealsByUser: async ({ commit }) => {
         commit("setMeals", [])
-        const response = await mealApi.findAllByUser(userId)
+        const response = await mealApi.findAllByUser()
         if (!(response instanceof Error)) {
-            commit("setMeals", response.data.meals)
+            commit("setMeals", response.data)
         }
     }
 }

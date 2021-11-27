@@ -1,10 +1,10 @@
 import api from "@/api/config"
 
 export default {
-    create(userId, meal) {
-        return api.post(`users/${userId}/meals`, meal)
+    create(meal) {
+        return api.post(`meals`, meal)
     },
-    findAllByUser(userId) {
-        return api.get(`users/${userId}/meals`)
+    findAllByUser() {
+        return api.get(`meals`)
     }
 }

@@ -1,26 +1,26 @@
 <template>
-    <calendar :events="meals" @change="findMeals"/>
+    <calendar :events="meals" @change="findMeals" />
 </template>
 
 <script>
 import Calendar from "@/components/Calendar"
-import {mapActions, mapGetters} from "vuex"
+import { mapActions, mapGetters } from "vuex"
+
 export default {
     name: "History",
     components: {
         Calendar
     },
     data: () => ({
-        meals: [],
+        meals: []
     }),
     computed: {
-        ...mapGetters("meal", ["getMeals"]),
-        ...mapGetters("user", ["getUser"])
+        ...mapGetters("meal", ["getMeals"])
     },
     methods: {
         ...mapActions("meal", ["findAllMealsByUser"]),
         async findMeals() {
-            await this.findAllMealsByUser(this.getUser._id)
+            await this.findAllMealsByUser()
             this.createEvents()
         },
         createEvents() {
@@ -37,13 +37,13 @@ export default {
             })
         },
         formatDetails(meal) {
-            return meal.plate.reduce(this.formatDetailsText, "")
+            return meal.foods.reduce(this.formatDetailsText, "")
         },
-        formatDetailsText(text, plate) {
+        formatDetailsText(text, food) {
             if (text) {
-                return `${text}<br>${plate.foodId.name} - quantidade: ${plate.quantity}`
+                return `${text}<br>${food.foodId.name} - ${food.quantity.value}${food.quantity.unit}`
             }
-            return `${plate.foodId.name} - quantidade: ${plate.quantity}`
+            return `${food.foodId.name} - ${food.quantity.value}${food.quantity.unit}`
         }
     }
 }
