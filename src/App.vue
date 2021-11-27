@@ -66,24 +66,29 @@ export default {
                 to: "/"
             },
             {
-                title: "Histórico de Refeições",
-                icon: "mdi-history",
-                to: "/history"
-            },
-            {
                 title: "Nova Refeição",
                 icon: "mdi-newspaper-plus",
                 to: "/new-meal"
             },
             {
-                title: "Usuários",
-                icon: "mdi-account-group",
-                to: "/users"
+                title: "Histórico de Refeições",
+                icon: "mdi-history",
+                to: "/history"
+            },
+            {
+                title: "Nutrientes",
+                icon: "mdi-food-apple",
+                to: "/nutrients"
             },
             {
                 title: "Alimentos",
                 icon: "mdi-chef-hat",
                 to: "/foods"
+            },
+            {
+                title: "Usuários",
+                icon: "mdi-account-group",
+                to: "/users"
             },
             {
                 title: "Sair",

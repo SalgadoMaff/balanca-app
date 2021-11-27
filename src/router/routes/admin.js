@@ -1,5 +1,6 @@
 import User from "@/views/admin/user/User"
 import Food from "@/views/admin/food/Food"
+import Nutrient from "@/views/admin/nutrient/Nutrient"
 
 const routes = [
     {
@@ -19,8 +20,17 @@ const routes = [
             authorizationRequired: true,
             role: "ADMIN"
         }
+    },
+    {
+        path: "/nutrients",
+        name: "Nutrient",
+        component: Nutrient,
+        meta: {
+            authorizationRequired: true,
+            role: "ADMIN"
+        }
     }
-    
+
 ]
 
 export default routes
