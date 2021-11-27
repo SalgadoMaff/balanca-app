@@ -6,7 +6,7 @@
             <v-card-text class="text-primary d-flex align-center justify-center flex-wrap">
                 <v-col cols="12">
                     <v-btn
-                        :disabled="deviceCache"
+                        :disabled="!!deviceCache"
                         block
                         class="green my-2 white--text"
                         @click="connect">
