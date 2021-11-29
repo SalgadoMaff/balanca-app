@@ -33,6 +33,7 @@ export default {
                     timed: true,
                     hour: this.formatTime(meal.createdAt),
                     details: this.formatDetails(meal)
+                    
                 })
             })
         },
@@ -40,10 +41,18 @@ export default {
             return meal.foods.reduce(this.formatDetailsText, "")
         },
         formatDetailsText(text, food) {
+            let strNutritionFacts=""
+                food.ProportionalNutritionFacts.forEach(element => {
+                    if(element==food.ProportionalNutritionFacts[food.ProportionalNutritionFacts.length-1]){
+                        strNutritionFacts+=element.nutrient+": "+element.amount.value+element.amount.unit
+                    }else{
+                        strNutritionFacts+=element.nutrient+": "+element.amount.value+element.amount.unit+" - "
+                    }
+                })
             if (text) {
-                return `${text}<br>${food.foodId.name} - ${food.quantity.value}${food.quantity.unit}`
+                return `${text}<br>${food.foodId.name} - Calorias: ${food.ProportionalCal} - ${food.quantity.value}${food.quantity.unit} - ${strNutritionFacts}`
             }
-            return `${food.foodId.name} - ${food.quantity.value}${food.quantity.unit}`
+            return `${food.foodId.name} - Calorias: ${food.ProportionalCal} - ${food.quantity.value}${food.quantity.unit} - ${strNutritionFacts}`
         }
     }
 }

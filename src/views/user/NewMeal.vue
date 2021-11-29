@@ -34,7 +34,8 @@
                     </v-row>
 
                     <v-row class="d-flex justify-center align-center">
-                        <v-chip class="chip" depressed color="primary"><span>{{ totalWeight }} kg</span></v-chip>
+                        <h3> Peso total: </h3>
+                        <v-chip class="chip"  depressed color="primary"><span> {{ totalWeight }} kg</span></v-chip>
                         <v-btn class="button" @click="addMeasurement" icon>
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
@@ -73,10 +74,15 @@ export default {
             foods: [],
             food: {
                 foodId: "",
+                calories:"",
                 quantity: {
                     unit: "kg",
                     value: ""
-                }
+                },
+                ProportionalNutritionFacts:[],
+                ProportionalCal:"",
+                servingSize:{},
+                nutritionFacts:[]
             },
             substitute: {
                 name: "",
@@ -112,6 +118,80 @@ export default {
             await this.findAllFoods()
             this.foods = this.getFoods
         },
+        manageFood(){
+            for (let i = 0; i < this.foods.length; i++){
+                if(this.food.foodId==this.foods[i]._id){
+                    this.food.servingSize=this.foods[i].servingSize
+                    this.food.calories=this.foods[i].calories
+                    this.food.nutritionFacts=this.foods[i].nutritionFacts
+                    break
+                }
+            }
+            let firstUnit,secondUnit
+            let quantityValue=this.food.quantity.value
+            let servingSizeValue=this.food.servingSize.value
+            if(this.food.servingSize.unit=="mg"){
+                firstUnit=0.001
+                this.food.ProportionalCal=(quantityValue*1000*parseFloat(this.food.calories))/(parseFloat(servingSizeValue)*firstUnit)
+            }
+            if(this.food.servingSize.unit=="g"){
+                firstUnit=1
+                this.food.ProportionalCal=(quantityValue*1000*parseFloat(this.food.calories))/(parseFloat(servingSizeValue))
+            }
+            if(this.food.servingSize.unit=="kg"){
+                firstUnit=1000
+                this.food.ProportionalCal=(quantityValue*parseFloat(this.food.calories))/(parseFloat(servingSizeValue))
+            }
+            this.food.ProportionalCal=parseFloat(this.food.ProportionalCal.toFixed(3))
+            this.food.nutritionFacts.forEach(element =>{ 
+                let insert={
+                    nutrient:{},
+                    amount:{
+                        unit:"",
+                        value:"",
+                    }
+                }
+                if(element.amount.unit=="mg"){
+                    secondUnit=0.001
+                }
+                else if(element.amount.unit=="g"){
+                    secondUnit=1
+                }
+                else if(element.amount.unit=="kg"){
+                    secondUnit=1000
+                }
+                insert.nutrient=element.nutrient.name   
+                insert.amount.value=(quantityValue*1000*secondUnit*parseFloat(element.amount.value))/(parseFloat(servingSizeValue)*firstUnit)
+                if(insert.amount.value<1 && insert.amount.value>0){
+                    insert.amount.value=insert.amount.value*1000
+                    insert.amount.unit="mg"
+                    if(insert.amount.value<1 && insert.amount.value>0){
+                        insert.amount.value=insert.amount.value*1000
+                        insert.amount.unit="µg"
+                        if(insert.amount.value<1 && insert.amount.value>0){
+                            insert.amount.value=insert.amount.value*1000
+                            insert.amount.unit="ng"
+                            if(insert.amount.value<1 && insert.amount.value>0){
+                                insert.amount.value=insert.amount.value*1000
+                                insert.amount.unit="pg"
+                            }
+                        }
+                    }     
+                }
+                else if(insert.amount.value>0 && insert.amount.value<1000){
+                    insert.amount.unit="g"
+                }
+                else if(insert.amount.value>1000){
+                    insert.amount.unit="kg"
+                    insert.amount.value=insert.amount.value/1000
+                }
+                insert.amount.value=parseFloat(insert.amount.value.toFixed(3))
+                this.food.ProportionalNutritionFacts.push(insert)
+            })
+            delete this.food.calories
+            delete this.food.servingSize
+            delete this.food.nutritionFacts
+        },
         addFoodToMeal() {
             if (this.validateFood()) {
                 if (this.validateWeight()) {
@@ -120,14 +200,18 @@ export default {
                         this.meal.some(element => element.foodId === this.food.foodId)) {
                         for (let i = 0; i < this.meal.length; i++) {
                             if (this.meal[i].foodId == this.food.foodId) {
-                                this.meal[i].quantity.value += parseFloat(this.food.quantity.value.toFixed(3))
-                                this.mealView[i].quantity.value += parseFloat(this.food.quantity.value.toFixed(3))
-                                this.weightList[i] += parseFloat(this.food.quantity.value.toFixed(3))
+                                this.meal[i].quantity.value = parseFloat((this.meal[i].quantity.value+parseFloat(this.food.quantity.value.toFixed(3))).toFixed(3))
+                                this.mealView[i].quantity.value = this.meal[i].quantity.value
+                                this.weightList[i] = this.meal[i].quantity.value
                                 this.weightList.pop()
+                                this.food.quantity=this.meal[i].quantity
+                                this.manageFood()
+                                this.meal[i]=this.food
                                 break
                             }
                         }
                     } else {
+                        this.manageFood()
                         this.meal.push(this.food)
                         let obj = this.foods.find(element => element._id === this.food.foodId)
                         this.substitute.name = obj.name
@@ -152,7 +236,7 @@ export default {
             this.loading = false
         },
         validateFood() {
-            if (!this.food.foodId) {
+            if (!this.food.foodId || this.food.foodId=="") {
                 this.setError({ message: "Selecione o alimento!" })
 
                 return false
@@ -184,7 +268,6 @@ export default {
                 this.setError({ message: "Calibre a balança" })
                 return false
             }
-            console.log(this.totalWeight)
             return true
         },
         validateMeal() {
@@ -202,11 +285,16 @@ export default {
             this.newWeight = 0
             this.food = {
                 foodId: "",
+                calories:"",
                 quantity: {
                     unit: "kg",
                     value: ""
-                }
-            }
+                },
+                ProportionalNutritionFacts:[],
+                ProportionalCal:"",
+                servingSize:{},
+                nutritionFacts:[]
+            },
             this.substitute = {
                 name: "",
                 foodId: "",
@@ -348,7 +436,6 @@ export default {
                     let data = this.readBuffer.trim()
                     this.readBuffer = ""
                     if (data) {
-                        // this.receive(data);
                         this.totalWeight = parseFloat(parseFloat(data).toFixed(3))
                         this.newWeight = this.totalWeight
                         if (this.weightList.length > 0) {
@@ -395,10 +482,10 @@ export default {
 
 <style lang="sass">
 .chip
+    margin-left: 6px
     width: 100px
     display: flex
     justify-content: center
-
 .button
     margin-left: 6px
     background-color: #e5e2e2 !important

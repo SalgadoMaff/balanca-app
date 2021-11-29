@@ -14,7 +14,7 @@
                                   required />
                     <v-combobox v-model="food.servingSize.unit" :items="unitMeasures" label="Unidade da porção"
                                 :rules="[validations.unit]" required />
-                    <v-text-field v-model="food.calories" label="Calorias" :rules="[validations.number]" required />
+                    <v-text-field v-model="food.calories" label="Calorias da porção" :rules="[validations.number]" required />
                 </v-form>
                 <v-form v-model="validNutritionFact" ref="formNutritionFact" lazy-validation>
                     <v-card-title class="label-nutrient">Nutrientes:</v-card-title>
