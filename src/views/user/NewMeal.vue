@@ -60,6 +60,7 @@
                     <span>Salvar</span>
                 </v-btn>
             </v-card-actions>
+            <v-btn color= green><span>{{loger}}</span></v-btn>
         </v-card>
     </v-container>
 </template>
@@ -100,6 +101,7 @@ export default {
             readBuffer: "",
             chat: "",
             serial: "",
+            loger:"",
             loading: false
         }
     },
@@ -387,10 +389,11 @@ export default {
         // Output to terminal
         log(data, type) {
             if (type == "in") {
-                this.logs.unshift(`IN: ${data}`)
-            } else if (type == "out") this.logs.unshift(`OUT: ${data}`)
+                //this.logs.unshift(`IN: ${data}`)
+            } //else if (type == "out") this.logs.unshift(`OUT: ${data}`)
             else this.logs.unshift(data)
             console.log(this.logs[0])
+            this.loger=this.logs[0]
         },
         // Disconnect
         disconnect() {
@@ -437,7 +440,7 @@ export default {
                     this.readBuffer = ""
                     if (data) {
                         this.totalWeight = parseFloat(parseFloat(data).toFixed(3))
-                        //this.log(value, "in")
+                        this.log(value, "in")
                     }
                 } else {
                     this.readBuffer += c
@@ -467,7 +470,7 @@ export default {
             }
             data += "\n"
             this.writeToCharacteristic(this.gattCharacteristic, data)
-            //this.log(data, "out")
+            this.log(data, "out")
             this.chat = ""
         },
         writeToCharacteristic(characteristic, data) {
