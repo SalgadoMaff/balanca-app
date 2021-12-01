@@ -60,7 +60,7 @@
                     <span>Salvar</span>
                 </v-btn>
             </v-card-actions>
-            <v-btn color= green><span>{{logs[0]}}</span></v-btn> 
+            <v-btn color=green><span>{{logs[0]}}</span></v-btn> 
         </v-card>
     </v-container>
 </template>
