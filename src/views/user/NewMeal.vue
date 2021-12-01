@@ -437,17 +437,7 @@ export default {
                     this.readBuffer = ""
                     if (data) {
                         this.totalWeight = parseFloat(parseFloat(data).toFixed(3))
-                        this.newWeight = this.totalWeight
-                        if (this.weightList.length > 0) {
-                            this.weightList.forEach(element => {
-                                this.newWeight = this.newWeight - element
-                            })
-                        }
-                        this.newWeight = parseFloat(parseFloat(this.newWeight).toFixed(3))
-                        this.weightList.push(this.newWeight)
-                        this.log(value, "in")
-                        this.addFoodToMeal()
-
+                        //this.log(value, "in")
                     }
                 } else {
                     this.readBuffer += c
@@ -459,8 +449,15 @@ export default {
             this.send()
         },
         addMeasurement() {
-            this.chat = "p"
-            this.send()
+            this.newWeight = this.totalWeight
+            if (this.weightList.length > 0) {
+                this.weightList.forEach(element => {
+                    this.newWeight = this.newWeight - element
+                })
+            }
+            this.newWeight = parseFloat(parseFloat(this.newWeight).toFixed(3))
+            this.weightList.push(this.newWeight)
+            this.addFoodToMeal()
 
         },
         send() {
@@ -470,7 +467,7 @@ export default {
             }
             data += "\n"
             this.writeToCharacteristic(this.gattCharacteristic, data)
-            this.log(data, "out")
+            //this.log(data, "out")
             this.chat = ""
         },
         writeToCharacteristic(characteristic, data) {
