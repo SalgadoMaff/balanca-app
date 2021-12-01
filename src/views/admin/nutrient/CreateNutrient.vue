@@ -87,7 +87,7 @@ export default {
             if (created) {
                 await this.findAllNutrients()
                 this.closeModal()
-                this.setSuccess({ message: "Alimento cadastrado com sucesso." })
+                this.setSuccess({ message: "Nutriente cadastrado com sucesso." })
             }
         },
         openModal() {
