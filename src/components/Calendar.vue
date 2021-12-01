@@ -46,7 +46,7 @@
                         <v-toolbar :color="selectedEvent.color" dark>
                             <v-toolbar-title v-html="selectedEvent.hour"></v-toolbar-title>
                         </v-toolbar>
-                        <v-card-text>
+                        <v-card-text class="flex">
                             <span v-html="selectedEvent.details"></span>
                         </v-card-text>
                         <v-card-actions>
