@@ -60,7 +60,7 @@
                     <span>Salvar</span>
                 </v-btn>
             </v-card-actions>
-            <!--<v-btn color= green><span>{{logs[0]}}</span></v-btn> -->
+            <v-btn color= green v-if="debug"><span>{{logs[0]}}</span></v-btn> <!--debug -->
         </v-card>
     </v-container>
 </template>
@@ -101,6 +101,7 @@ export default {
             readBuffer: "",
             chat: "",
             serial: "",
+            debug:true,
             loading: false
         }
     },
