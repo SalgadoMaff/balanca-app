@@ -60,7 +60,7 @@
                     <span>Salvar</span>
                 </v-btn>
             </v-card-actions>
-            <v-btn color= green><span>{{loger}}</span></v-btn>
+            <!--<v-btn color= green><span>{{logs[0]}}</span></v-btn> -->
         </v-card>
     </v-container>
 </template>
@@ -95,13 +95,12 @@ export default {
             weightList: [],
             meal: [],
             mealView: [],
-            logs: ["teste"],
+            logs: ["inicio"],
             deviceCache: null,
             gattCharacteristic: null,
             readBuffer: "",
             chat: "",
             serial: "",
-            loger:"",
             loading: false
         }
     },
@@ -389,11 +388,10 @@ export default {
         // Output to terminal
         log(data, type) {
             if (type == "in") {
-                //this.logs.unshift(`IN: ${data}`)
-            } //else if (type == "out") this.logs.unshift(`OUT: ${data}`)
+                this.logs.unshift(`IN: ${data}`)
+            } else if (type == "out") this.logs.unshift(`OUT: ${data}`)
             else this.logs.unshift(data)
             console.log(this.logs[0])
-            this.loger=this.logs[0]
         },
         // Disconnect
         disconnect() {
